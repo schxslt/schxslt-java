@@ -36,6 +36,8 @@ import javax.xml.transform.stream.StreamSource;
 
 public class Resolver implements URIResolver
 {
+    final private org.xmlresolver.Resolver resolver = new org.xmlresolver.Resolver();
+
     public Source resolve (String href, String base) throws TransformerException
     {
         URI baseUri;
@@ -63,7 +65,8 @@ public class Resolver implements URIResolver
 
                 return source;
             }
-            return null;
+
+            return resolver.resolve(href, base);
 
         } catch (URISyntaxException e) {
             throw new TransformerException(e);

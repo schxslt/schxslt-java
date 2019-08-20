@@ -35,14 +35,16 @@ import name.dmaus.schxslt.Schematron;
 import name.dmaus.schxslt.Result;
 
 public class SchematronTest
-{   
+{
     private File simpleSchema10;
     private File simpleSchema20;
+    private File simpleSchema20catalog;
 
     @BeforeClass
     public static void setup ()
     {
         System.setProperty("javax.xml.transform.TransformerFactory", "net.sf.saxon.TransformerFactoryImpl");
+        System.setProperty("xml.catalog.files", SchematronTest.class.getResource("/catalog.xml").toString());
     }
 
     @Before
@@ -50,6 +52,7 @@ public class SchematronTest
     {
         simpleSchema10 = new File(getClass().getResource("/simple-schema-10.sch").toURI());
         simpleSchema20 = new File(getClass().getResource("/simple-schema-20.sch").toURI());
+        simpleSchema20catalog = new File(getClass().getResource("/simple-schema-20-catalog.sch").toURI());
     }
 
     @Test
@@ -63,6 +66,13 @@ public class SchematronTest
     public void newSchematronForXSLT20 () throws Exception
     {
         Schematron schematron = new Schematron(simpleSchema20);
+        Result result = schematron.validate(simpleSchema10);
+    }
+
+    @Test
+    public void catalogResolver () throws Exception
+    {
+        Schematron schematron = new Schematron(simpleSchema20catalog);
         Result result = schematron.validate(simpleSchema10);
     }
 }
