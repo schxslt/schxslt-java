@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>name.dmaus.schxslt</groupId>
   <artifactId>java</artifactId>
-  <version>1.1</version>
+  <version>1.2</version>
 
   <name>SchXslt Java</name>
   <description>Java classes for Schematron validation with SchXslt</description>
