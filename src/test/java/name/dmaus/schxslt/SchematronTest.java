@@ -34,6 +34,8 @@ import java.io.File;
 import name.dmaus.schxslt.Schematron;
 import name.dmaus.schxslt.Result;
 
+import java.util.HashMap;
+
 public class SchematronTest
 {
     private File simpleSchema10;
@@ -58,15 +60,42 @@ public class SchematronTest
     @Test
     public void newSchematronForXSLT10 () throws Exception
     {
-        Schematron schematron = new Schematron(simpleSchema10);
+        Schematron schematron = new Schematron(simpleSchema10, "always-valid");
         Result result = schematron.validate(simpleSchema10);
+        assertTrue(result.isValid());
     }
+
+    @Test
+    public void extParamForXSLT10 () throws Exception
+    {
+        Schematron schematron = new Schematron(simpleSchema10, "external-param");
+
+        HashMap<String,Object> map = new HashMap<String,Object>();
+        map.put("external-param", new Integer(1));
+
+        Result result = schematron.validate(simpleSchema10, map);
+        assertTrue(result.isValid());
+    }
+
+    @Test
+    public void extParamForXSLT20 () throws Exception
+    {
+        Schematron schematron = new Schematron(simpleSchema10, "external-param");
+
+        HashMap<String,Object> map = new HashMap<String,Object>();
+        map.put("external-param", new Integer(1));
+
+        Result result = schematron.validate(simpleSchema10, map);
+        assertTrue(result.isValid());
+    }
+
 
     @Test
     public void newSchematronForXSLT20 () throws Exception
     {
-        Schematron schematron = new Schematron(simpleSchema20);
+        Schematron schematron = new Schematron(simpleSchema20, "always-valid");
         Result result = schematron.validate(simpleSchema10);
+        assertTrue(result.isValid());
     }
 
     @Test
@@ -74,5 +103,6 @@ public class SchematronTest
     {
         Schematron schematron = new Schematron(simpleSchema20catalog);
         Result result = schematron.validate(simpleSchema10);
+        assertTrue(result.isValid());
     }
 }

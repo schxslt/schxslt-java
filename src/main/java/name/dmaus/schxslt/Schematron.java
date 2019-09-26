@@ -53,6 +53,8 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 
+import java.util.Map;
+
 public class Schematron
 {
     private Templates validator;
@@ -77,9 +79,19 @@ public class Schematron
         this.compiler = compilers.newInstance(this.schema);
     }
 
+    public Result validate (final InputStream input, final Map<String, Object> parameters)
+    {
+        return validate(loadDocument(input), parameters);
+    }
+
     public Result validate (final InputStream input)
     {
         return validate(loadDocument(input));
+    }
+
+    public Result validate (final File file, final Map<String, Object> parameters)
+    {
+        return validate(loadDocument(file), parameters);
     }
 
     public Result validate (final File file)
@@ -89,13 +101,25 @@ public class Schematron
 
     public Result validate (final Source source)
     {
+        return validate(source, null);
+    }
+
+    public Result validate (final Source source, final Map<String, Object> parameters)
+    {
         if (this.validator == null) {
             this.validator = this.compiler.compile(this.schema, this.phase);
         }
 
         DOMResult target = new DOMResult();
         try {
-            this.validator.newTransformer().transform(source, target);
+            Transformer transformer = this.validator.newTransformer();
+            if (parameters != null) {
+                for (Map.Entry<String,Object> parameter : parameters.entrySet()) {
+                    transformer.setParameter(parameter.getKey(), parameter.getValue());
+                }
+            }
+
+            transformer.transform(source, target);
             Document report = (Document)target.getNode();
 
             return new Result(report);
