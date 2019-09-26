@@ -62,7 +62,6 @@ public class Schematron
 
     private String phase;
     private DOMSource schema;
-    private Compiler compiler;
 
     private final CompilerFactory compilers = new CompilerFactory();
     private final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -76,7 +75,6 @@ public class Schematron
     {
         this.phase = phase;
         this.schema = loadDocument(schema);
-        this.compiler = compilers.newInstance(this.schema);
     }
 
     public Result validate (final InputStream input, final Map<String, Object> parameters)
@@ -106,8 +104,9 @@ public class Schematron
 
     public Result validate (final Source source, final Map<String, Object> parameters)
     {
-        if (this.validator == null) {
-            this.validator = this.compiler.compile(this.schema, this.phase);
+        if (validator == null) {
+            Compiler compiler = compilers.newInstance(schema);
+            validator = compiler.compile(schema, phase);
         }
 
         DOMResult target = new DOMResult();
