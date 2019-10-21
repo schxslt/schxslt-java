@@ -77,6 +77,17 @@ public class Schematron
         this.schema = loadDocument(schema);
     }
 
+    public Schematron (final InputStream schema)
+    {
+        this(schema, null);
+    }
+
+    public Schematron (final InputStream schema, final String phase)
+    {
+        this.phase = phase;
+        this.schema = loadDocument(schema);
+    }
+
     public Result validate (final InputStream input, final Map<String, Object> parameters)
     {
         return validate(loadDocument(input), parameters);
