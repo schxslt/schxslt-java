@@ -40,7 +40,7 @@ public class CompilerFactory
             throw new RuntimeException("Invalid Schematron document");
         }
         String queryBinding = outermost.getAttribute("queryBinding");
-        if (queryBinding == "") {
+        if (queryBinding.isEmpty()) {
             queryBinding = "xslt";
         }
 
