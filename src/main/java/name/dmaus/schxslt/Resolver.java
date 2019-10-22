@@ -34,11 +34,14 @@ import javax.xml.transform.URIResolver;
 
 import javax.xml.transform.stream.StreamSource;
 
-public class Resolver implements URIResolver
+class Resolver implements URIResolver
 {
-    final private org.xmlresolver.Resolver resolver = new org.xmlresolver.Resolver();
+    final org.xmlresolver.Resolver resolver = new org.xmlresolver.Resolver();
 
-    public Source resolve (String href, String base) throws TransformerException
+    Resolver ()
+    {}
+
+    public Source resolve (final String href, final String base) throws TransformerException
     {
         URI baseUri;
         URI hrefUri;

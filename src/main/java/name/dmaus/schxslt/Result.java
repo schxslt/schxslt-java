@@ -31,65 +31,42 @@ import org.w3c.dom.NodeList;
 import java.util.List;
 import java.util.ArrayList;
 
-import java.io.File;
-import java.io.IOException;
-
-import javax.xml.transform.stream.StreamResult;
-
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-
-import javax.xml.transform.dom.DOMSource;
-
-public class Result
+class Result
 {
-    private final Document report;
-    private final List<String> messages = new ArrayList<String>();
+    static final String SVRL = "http://purl.oclc.org/dsdl/svrl";
 
-    public Result (final Document report)
+    final Document report;
+    final List<String> messages = new ArrayList<String>();
+
+    Result (final Document report)
     {
         this.report = report;
 
-        this.readMessages(report.getElementsByTagNameNS("http://purl.oclc.org/dsdl/svrl", "failed-assert"));
-        this.readMessages(report.getElementsByTagNameNS("http://purl.oclc.org/dsdl/svrl", "successful-report"));
+        readMessages(report.getElementsByTagNameNS(SVRL, "failed-assert"));
+        readMessages(report.getElementsByTagNameNS(SVRL, "successful-report"));
     }
 
     public List<String> getValidationMessages ()
     {
-        return this.messages;
+        return messages;
     }
 
     public Document getValidationReport ()
     {
-        return this.report;
+        return report;
     }
 
     public boolean isValid ()
     {
-        return this.messages.isEmpty();
+        return messages.isEmpty();
     }
 
-    public void saveAs (final File file)
-    {
-        try {
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            DOMSource source = new DOMSource(this.report, this.report.getDocumentURI());
-            StreamResult result = new StreamResult(file);
-
-            transformer.transform(source, result);
-
-        } catch (TransformerException e) {
-            throw new RuntimeException("Unable to save validation report to file '" + file + "'");
-        }
-    }
-
-    private void readMessages (NodeList nodes)
+    void readMessages (final NodeList nodes)
     {
         for (int i = 0; i < nodes.getLength(); i++) {
             Element element = (Element)nodes.item(i);
-            String message = element.getLocalName() + " " + element.getAttribute("location") + " " + element.getTextContent();
-            this.messages.add(message);
+            String message = String.format("%s %s %s", element.getLocalName(), element.getAttribute("location"), element.getTextContent());
+            messages.add(message);
         }
     }
 }
