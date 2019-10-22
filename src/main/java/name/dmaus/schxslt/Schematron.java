@@ -45,7 +45,6 @@ class Schematron
 {
 
     final Source schematron;
-    final String phase;
 
     final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
     final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
@@ -53,17 +52,27 @@ class Schematron
     final TransformerFactory transformerFactory = TransformerFactory.newInstance();
     final Resolver resolver = new Resolver();
 
-    Schematron (final Source schematron)
+    final Map<String,Object> options = new HashMap<String,Object>();
+
+    public Schematron (final Source schematron)
     {
         this(schematron, null);
     }
 
-    Schematron (final Source schematron, final String phase)
+    public Schematron (final Source schematron, final String phase)
     {
         this.schematron = schematron;
-        this.phase = phase;
+
+        if (phase != null) {
+            options.put("phase", phase);
+        }
 
         transformerFactory.setURIResolver(resolver);
+    }
+
+    public void setOptions (final Map<String,Object> opts)
+    {
+        this.options.putAll(opts);
     }
 
     public Result validate (final Source document)
@@ -96,11 +105,6 @@ class Schematron
         try {
             Transformer[] pipeline;
 
-            Map<String,Object> parameters = new HashMap<String,Object>();
-            if (phase != null) {
-                parameters.put("phase", phase);
-            }
-
             Transformer identityTransformer = transformerFactory.newTransformer();
             DOMResult schema = new DOMResult();
             identityTransformer.transform(schematron, schema);
@@ -110,11 +114,11 @@ class Schematron
             switch (queryBinding) {
             case "":
             case "xslt":
-                pipeline = createPipeline(xslt10steps, parameters);
+                pipeline = createPipeline(xslt10steps);
                 break;
             case "xslt2":
             case "xslt3":
-                pipeline = createPipeline(xslt20steps, parameters);
+                pipeline = createPipeline(xslt20steps);
                 break;
             default:
                 throw new RuntimeException("Unsupported query language: " + queryBinding);
@@ -142,14 +146,14 @@ class Schematron
         return (Document)result.getNode();
     }
 
-    Transformer[] createPipeline (final String[] steps, final Map<String, Object> parameters) throws TransformerException
+    Transformer[] createPipeline (final String[] steps) throws TransformerException
     {
         final List<Transformer> templates = new ArrayList<Transformer>();
 
         for (int i = 0; i < steps.length; i++) {
             final Source source = resolver.resolve(steps[i], null);
             final Transformer transformer = transformerFactory.newTransformer(source);
-            for (Map.Entry<String,Object> param : parameters.entrySet()) {
+            for (Map.Entry<String,Object> param : options.entrySet()) {
                 transformer.setParameter(param.getKey(), param.getValue());
             }
             templates.add(transformer);
