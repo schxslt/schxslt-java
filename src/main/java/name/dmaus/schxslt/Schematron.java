@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 by David Maus <dmaus@dmaus.name>
+ * Copyright (C) 2019 by David Maus <dmaus@dmaus.name>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,156 +24,137 @@
 
 package name.dmaus.schxslt;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.URIResolver;
 
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.Source;
 
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 
+import org.w3c.dom.Document;
+
 import java.util.Map;
+import java.util.HashMap;
 
-public class Schematron
+import java.util.List;
+import java.util.ArrayList;
+
+class Schematron
 {
-    private Templates validator;
-    private DocumentBuilder builder;
 
-    private String phase;
-    private DOMSource schema;
+    final Source schematron;
+    final String phase;
 
-    private final CompilerFactory compilers = new CompilerFactory();
-    private final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
+    final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
 
-    public Schematron (final File schema)
+    final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    final Resolver resolver = new Resolver();
+
+    Schematron (final Source schematron)
     {
-        this(schema, null);
+        this(schematron, null);
     }
 
-    public Schematron (final File schema, final String phase)
+    Schematron (final Source schematron, final String phase)
     {
+        this.schematron = schematron;
         this.phase = phase;
-        this.schema = loadDocument(schema);
+
+        transformerFactory.setURIResolver(resolver);
     }
 
-    public Schematron (final InputStream schema)
+    public Result validate (final Source document)
     {
-        this(schema, null);
+        return validate(document, null);
     }
 
-    public Schematron (final InputStream schema, final String phase)
+    public Result validate (final Source document, final Map<String,Object> parameters)
     {
-        this.phase = phase;
-        this.schema = loadDocument(schema);
-    }
-
-    public Result validate (final InputStream input, final Map<String, Object> parameters)
-    {
-        return validate(loadDocument(input), parameters);
-    }
-
-    public Result validate (final InputStream input)
-    {
-        return validate(loadDocument(input));
-    }
-
-    public Result validate (final File file, final Map<String, Object> parameters)
-    {
-        return validate(loadDocument(file), parameters);
-    }
-
-    public Result validate (final File file)
-    {
-        return validate(loadDocument(file));
-    }
-
-    public Result validate (final Source source)
-    {
-        return validate(source, null);
-    }
-
-    public Result validate (final Source source, final Map<String, Object> parameters)
-    {
-        if (validator == null) {
-            Compiler compiler = compilers.newInstance(schema);
-            validator = compiler.compile(schema, phase);
-        }
-
-        DOMResult target = new DOMResult();
         try {
-            Transformer transformer = this.validator.newTransformer();
+            Transformer validation = compile();
             if (parameters != null) {
-                for (Map.Entry<String,Object> parameter : parameters.entrySet()) {
-                    transformer.setParameter(parameter.getKey(), parameter.getValue());
+                for (Map.Entry<String,Object> param : parameters.entrySet()) {
+                    validation.setParameter(param.getKey(), param.getValue());
                 }
             }
 
-            transformer.transform(source, target);
-            Document report = (Document)target.getNode();
+            DOMResult result = new DOMResult();
+            validation.transform(document, result);
 
-            return new Result(report);
+            return new Result((Document)result.getNode());
 
         } catch (TransformerException e) {
-            throw new RuntimeException("Unable to apply validation stylesheet");
+            throw new RuntimeException("Error running transformation stylesheet", e);
         }
     }
 
-    public void setFeature (String name, boolean value) throws SAXNotRecognizedException
+    Transformer compile ()
     {
         try {
-            this.factory.setFeature(name, value);
-        } catch (ParserConfigurationException e) {
-            throw new SAXNotRecognizedException("Feature '" + name + "' is not supported");
+            Transformer[] pipeline;
+
+            Map<String,Object> parameters = new HashMap<String,Object>();
+            if (phase != null) {
+                parameters.put("phase", phase);
+            }
+
+            Transformer identityTransformer = transformerFactory.newTransformer();
+            DOMResult schema = new DOMResult();
+            identityTransformer.transform(schematron, schema);
+
+            Document schemaDocument = (Document)schema.getNode();
+            String queryBinding = schemaDocument.getDocumentElement().getAttribute("queryBinding").toLowerCase();
+            switch (queryBinding) {
+            case "":
+            case "xslt":
+                pipeline = createPipeline(xslt10steps, parameters);
+                break;
+            case "xslt2":
+            case "xslt3":
+                pipeline = createPipeline(xslt20steps, parameters);
+                break;
+            default:
+                throw new RuntimeException("Unsupported query language: " + queryBinding);
+            }
+
+            Document validationStylesheet = applyPipeline(pipeline, new DOMSource(schemaDocument));
+            return transformerFactory.newTransformer(new DOMSource(validationStylesheet));
+
+        } catch (TransformerException e) {
+            throw new RuntimeException("Error compiling Schematron to transformation stylesheet", e);
         }
     }
 
-    public void setProperty (String name, Object value)
+    Document applyPipeline (final Transformer[] steps, final Source document) throws TransformerException
     {
-        this.factory.setAttribute(name, value);
+        DOMResult result = null;
+        Source source = document;
+
+        for (int i = 0; i < steps.length; i++) {
+            result = new DOMResult();
+            steps[i].transform(source, result);
+            source = new DOMSource(result.getNode(), result.getSystemId());
+        }
+
+        return (Document)result.getNode();
     }
 
-    private DOMSource loadDocument (final InputStream input)
+    Transformer[] createPipeline (final String[] steps, final Map<String, Object> parameters) throws TransformerException
     {
-        try {
-            return new DOMSource(this.factory.newDocumentBuilder().parse(input));
-        } catch (SAXException e) {
-            throw new RuntimeException("Unable to parse XML document");
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to parse XML document");
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
-        }
-    }
+        final List<Transformer> templates = new ArrayList<Transformer>();
 
-    private DOMSource loadDocument (final File file)
-    {
-        try {
-            DOMSource source = loadDocument(new FileInputStream(file));
-            source.setSystemId(file.toURI().toString());
-            return source;
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("Unable to open file '" + file.getAbsolutePath() + "'");
+        for (int i = 0; i < steps.length; i++) {
+            final Source source = resolver.resolve(steps[i], null);
+            final Transformer transformer = transformerFactory.newTransformer(source);
+            for (Map.Entry<String,Object> param : parameters.entrySet()) {
+                transformer.setParameter(param.getKey(), param.getValue());
+            }
+            templates.add(transformer);
         }
+
+        return templates.toArray(new Transformer[templates.size()]);
     }
 }
