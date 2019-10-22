@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
-class Schematron
+public final class Schematron
 {
 
     final Source schematron;
