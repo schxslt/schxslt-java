@@ -49,10 +49,11 @@ public final class Schematron
     final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
     final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
 
-    final TransformerFactory transformerFactory = TransformerFactory.newInstance();
     final Resolver resolver = new Resolver();
 
     final Map<String,Object> options = new HashMap<String,Object>();
+
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
 
     public Schematron (final Source schematron)
     {
@@ -72,7 +73,12 @@ public final class Schematron
 
     public void setOptions (final Map<String,Object> opts)
     {
-        this.options.putAll(opts);
+        options.putAll(opts);
+    }
+
+    public void setTransformerFactory (final TransformerFactory factory)
+    {
+        transformerFactory = factory;
     }
 
     public Result validate (final Source document)
