@@ -85,12 +85,12 @@ public final class Schematron
         validationStylesheet = null;
     }
 
-    public Result validate (final Source document)
+    public Result validate (final Source document) throws SchematronException
     {
         return validate(document, null);
     }
 
-    public Result validate (final Source document, final Map<String,Object> parameters)
+    public Result validate (final Source document, final Map<String,Object> parameters) throws SchematronException
     {
         try {
             Transformer validation = transformerFactory.newTransformer(new DOMSource(getValidationStylesheet()));
@@ -106,11 +106,11 @@ public final class Schematron
             return new Result((Document)result.getNode());
 
         } catch (TransformerException e) {
-            throw new RuntimeException("Error running transformation stylesheet", e);
+            throw new SchematronException("Error running transformation stylesheet", e);
         }
     }
 
-    public Document getValidationStylesheet ()
+    public Document getValidationStylesheet () throws SchematronException
     {
         if (validationStylesheet == null) {
             validationStylesheet = compile();
@@ -118,7 +118,7 @@ public final class Schematron
         return validationStylesheet;
     }
 
-    Document compile ()
+    Document compile () throws SchematronException
     {
         try {
             Transformer[] pipeline;
@@ -139,13 +139,13 @@ public final class Schematron
                 pipeline = createPipeline(xslt20steps);
                 break;
             default:
-                throw new RuntimeException("Unsupported query language: " + queryBinding);
+                throw new SchematronException("Unsupported query language: " + queryBinding);
             }
 
             return applyPipeline(pipeline, new DOMSource(schemaDocument));
 
         } catch (TransformerException e) {
-            throw new RuntimeException("Error compiling Schematron to transformation stylesheet", e);
+            throw new SchematronException("Error compiling Schematron to transformation stylesheet", e);
         }
     }
 
