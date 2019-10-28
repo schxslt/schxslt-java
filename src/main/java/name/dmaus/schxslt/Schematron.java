@@ -55,6 +55,8 @@ public final class Schematron
 
     TransformerFactory transformerFactory = TransformerFactory.newInstance();
 
+    Document validationStylesheet;
+
     public Schematron (final Source schematron)
     {
         this(schematron, null);
@@ -74,11 +76,13 @@ public final class Schematron
     public void setOptions (final Map<String,Object> opts)
     {
         options.putAll(opts);
+        validationStylesheet = null;
     }
 
     public void setTransformerFactory (final TransformerFactory factory)
     {
         transformerFactory = factory;
+        validationStylesheet = null;
     }
 
     public Result validate (final Source document)
@@ -89,7 +93,7 @@ public final class Schematron
     public Result validate (final Source document, final Map<String,Object> parameters)
     {
         try {
-            Transformer validation = compile();
+            Transformer validation = transformerFactory.newTransformer(new DOMSource(getValidationStylesheet()));
             if (parameters != null) {
                 for (Map.Entry<String,Object> param : parameters.entrySet()) {
                     validation.setParameter(param.getKey(), param.getValue());
@@ -106,7 +110,15 @@ public final class Schematron
         }
     }
 
-    Transformer compile ()
+    public Document getValidationStylesheet ()
+    {
+        if (validationStylesheet == null) {
+            validationStylesheet = compile();
+        }
+        return validationStylesheet;
+    }
+
+    Document compile ()
     {
         try {
             Transformer[] pipeline;
@@ -130,8 +142,7 @@ public final class Schematron
                 throw new RuntimeException("Unsupported query language: " + queryBinding);
             }
 
-            Document validationStylesheet = applyPipeline(pipeline, new DOMSource(schemaDocument));
-            return transformerFactory.newTransformer(new DOMSource(validationStylesheet));
+            return applyPipeline(pipeline, new DOMSource(schemaDocument));
 
         } catch (TransformerException e) {
             throw new RuntimeException("Error compiling Schematron to transformation stylesheet", e);
