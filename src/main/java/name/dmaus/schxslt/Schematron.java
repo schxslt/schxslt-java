@@ -53,9 +53,9 @@ public final class Schematron
 
     final Document schematron;
 
-    final Resolver resolver = new Resolver();
+    Resolver resolver = new Resolver();
 
-    final Map<String,Object> options = new HashMap<String,Object>();
+    Map<String,Object> options = new HashMap<String,Object>();
 
     TransformerFactory transformerFactory = TransformerFactory.newInstance();
 
@@ -130,6 +130,16 @@ public final class Schematron
             validationStylesheet = compile();
         }
         return validationStylesheet;
+    }
+
+    Schematron (final Schematron orig)
+    {
+        this.schematron = orig.schematron;
+        this.resolver = orig.resolver;
+        this.options = orig.options;
+        this.transformerFactory = orig.transformerFactory;
+        this.validationStylesheet = orig.validationStylesheet;
+        this.pipelineSteps = orig.pipelineSteps;
     }
 
     Document loadSchematron (final Source source)
