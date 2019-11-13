@@ -47,12 +47,11 @@ import java.nio.file.Paths;
 
 public final class Schematron
 {
-    final Logger log = Logger.getLogger(this.getClass().getName());
+    static final Logger log = Logger.getLogger(Schematron.class.getName());
+    static final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
+    static final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
 
     final Document schematron;
-
-    final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
-    final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
 
     final Resolver resolver = new Resolver();
 
