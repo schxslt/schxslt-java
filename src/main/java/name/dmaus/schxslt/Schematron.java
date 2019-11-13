@@ -49,7 +49,7 @@ public final class Schematron
 {
     final Logger log = Logger.getLogger(this.getClass().getName());
 
-    final Source schematron;
+    final Document schematron;
 
     final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
     final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
@@ -69,7 +69,7 @@ public final class Schematron
 
     public Schematron (final Source schematron, final String phase)
     {
-        this.schematron = schematron;
+        this.schematron = loadSchematron(schematron);
 
         if (phase != null) {
             options.put("phase", phase);
@@ -123,23 +123,31 @@ public final class Schematron
         return validationStylesheet;
     }
 
+    Document loadSchematron (final Source source)
+    {
+        String systemId = Paths.get(source.getSystemId()).toUri().toString();
+        log.fine("Schematron base URI is " + systemId);
+
+        try {
+            Transformer identityTransformer = transformerFactory.newTransformer();
+            DOMResult schema = new DOMResult();
+            identityTransformer.transform(source, schema);
+
+            Document schemaDocument = (Document)schema.getNode();
+            schemaDocument.setDocumentURI(systemId);
+
+            return schemaDocument;
+        } catch (TransformerException e) {
+            throw new RuntimeException("Error creating the Schematron document", e);
+        }
+    }
+
     Document compile () throws SchematronException
     {
         try {
             Transformer[] pipeline;
 
-            String systemId = Paths.get(schematron.getSystemId()).toUri().toString();
-            log.fine("Schematron base URI is " + systemId);
-
-            Transformer identityTransformer = transformerFactory.newTransformer();
-            DOMResult schema = new DOMResult();
-            identityTransformer.transform(schematron, schema);
-
-            Document schemaDocument = (Document)schema.getNode();
-            schemaDocument.setDocumentURI(systemId);
-            log.fine("Schematron base URI is " + schemaDocument.getDocumentURI());
-
-            String queryBinding = schemaDocument.getDocumentElement().getAttribute("queryBinding").toLowerCase();
+            String queryBinding = schematron.getDocumentElement().getAttribute("queryBinding").toLowerCase();
             switch (queryBinding) {
             case "":
             case "xslt":
@@ -153,7 +161,8 @@ public final class Schematron
                 throw new SchematronException("Unsupported query language: " + queryBinding);
             }
 
-            DOMSource schemaSource = new DOMSource(schemaDocument, systemId);
+            String systemId = schematron.getDocumentURI();
+            DOMSource schemaSource = new DOMSource(schematron, systemId);
             log.fine("Schematron base URI is " + schemaSource.getSystemId());
 
             Document stylesheet = applyPipeline(pipeline, schemaSource);
