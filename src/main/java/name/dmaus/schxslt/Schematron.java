@@ -79,24 +79,28 @@ public final class Schematron
         transformerFactory.setURIResolver(resolver);
     }
 
-    public void setOptions (final Map<String,Object> opts)
+    public Schematron withOptions (final Map<String,Object> opts)
     {
-        options.putAll(opts);
-        validationStylesheet = null;
+        Schematron newSchematron = new Schematron(this);
+        newSchematron.options = opts;
+        return newSchematron;
     }
 
-    public void setTransformerFactory (final TransformerFactory factory)
+    public Schematron withTransformerFactory (final TransformerFactory factory)
     {
-        transformerFactory = factory;
-        validationStylesheet = null;
+        Schematron newSchematron = new Schematron(this);
+        newSchematron.transformerFactory = factory;
+        return newSchematron;
     }
 
-    public void setPipelineSteps (final String[] steps)
+    public Schematron withPipelineSteps (final String[] steps)
     {
         if (steps.length == 0) {
             throw new IllegalArgumentException("A transformation pipeline must have a least one step");
         }
-        pipelineSteps = steps;
+        Schematron newSchematron = new Schematron(this);
+        newSchematron.pipelineSteps = steps;
+        return newSchematron;
     }
 
     public Result validate (final Source document) throws SchematronException
@@ -170,11 +174,11 @@ public final class Schematron
             switch (queryBinding) {
             case "":
             case "xslt":
-                setPipelineSteps(xslt10steps);
+                pipelineSteps = xslt10steps;
                 break;
             case "xslt2":
             case "xslt3":
-                setPipelineSteps(xslt20steps);
+                pipelineSteps = xslt20steps;
                 break;
             default:
                 throw new SchematronException("Unsupported query language: " + queryBinding);
