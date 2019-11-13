@@ -62,6 +62,8 @@ public final class Schematron
 
     Document validationStylesheet;
 
+    String[] pipelineSteps;
+
     public Schematron (final Source schematron)
     {
         this(schematron, null);
@@ -88,6 +90,14 @@ public final class Schematron
     {
         transformerFactory = factory;
         validationStylesheet = null;
+    }
+
+    public void setPipelineSteps (final String[] steps)
+    {
+        if (steps.length == 0) {
+            throw new IllegalArgumentException("A transformation pipeline must have a least one step");
+        }
+        pipelineSteps = steps;
     }
 
     public Result validate (final Source document) throws SchematronException
@@ -151,15 +161,17 @@ public final class Schematron
             switch (queryBinding) {
             case "":
             case "xslt":
-                pipeline = createPipeline(xslt10steps);
+                setPipelineSteps(xslt10steps);
                 break;
             case "xslt2":
             case "xslt3":
-                pipeline = createPipeline(xslt20steps);
+                setPipelineSteps(xslt20steps);
                 break;
             default:
                 throw new SchematronException("Unsupported query language: " + queryBinding);
             }
+
+            pipeline = createPipeline(pipelineSteps);
 
             String systemId = schematron.getDocumentURI();
             DOMSource schemaSource = new DOMSource(schematron, systemId);
