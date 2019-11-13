@@ -138,8 +138,8 @@ public final class Schematron
         this.resolver = orig.resolver;
         this.options = orig.options;
         this.transformerFactory = orig.transformerFactory;
-        this.validationStylesheet = orig.validationStylesheet;
-        this.pipelineSteps = orig.pipelineSteps;
+        this.validationStylesheet = null;
+        this.pipelineSteps = null;
     }
 
     Document loadSchematron (final Source source)
