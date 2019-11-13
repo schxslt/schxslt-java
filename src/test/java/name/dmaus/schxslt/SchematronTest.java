@@ -98,6 +98,6 @@ public class SchematronTest
 
     StreamSource getResourceAsStream (String resource)
     {
-        return new StreamSource(getClass().getResourceAsStream(resource));
+        return new StreamSource(getClass().getResourceAsStream(resource), resource);
     }
 }

@@ -41,8 +41,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
+import java.util.logging.Logger;
+
+import java.nio.file.Paths;
+
 public final class Schematron
 {
+    final Logger log = Logger.getLogger(this.getClass().getName());
 
     final Source schematron;
 
@@ -123,11 +128,17 @@ public final class Schematron
         try {
             Transformer[] pipeline;
 
+            String systemId = Paths.get(schematron.getSystemId()).toUri().toString();
+            log.fine("Schematron base URI is " + systemId);
+
             Transformer identityTransformer = transformerFactory.newTransformer();
             DOMResult schema = new DOMResult();
             identityTransformer.transform(schematron, schema);
 
             Document schemaDocument = (Document)schema.getNode();
+            schemaDocument.setDocumentURI(systemId);
+            log.fine("Schematron base URI is " + schemaDocument.getDocumentURI());
+
             String queryBinding = schemaDocument.getDocumentElement().getAttribute("queryBinding").toLowerCase();
             switch (queryBinding) {
             case "":
@@ -142,7 +153,14 @@ public final class Schematron
                 throw new SchematronException("Unsupported query language: " + queryBinding);
             }
 
-            return applyPipeline(pipeline, new DOMSource(schemaDocument));
+            DOMSource schemaSource = new DOMSource(schemaDocument, systemId);
+            log.fine("Schematron base URI is " + schemaSource.getSystemId());
+
+            Document stylesheet = applyPipeline(pipeline, schemaSource);
+            stylesheet.setDocumentURI(systemId);
+            log.fine("Schematron base URI is " + stylesheet.getDocumentURI());
+
+            return stylesheet;
 
         } catch (TransformerException e) {
             throw new SchematronException("Error compiling Schematron to transformation stylesheet", e);
@@ -157,7 +175,7 @@ public final class Schematron
         for (int i = 0; i < steps.length; i++) {
             result = new DOMResult();
             steps[i].transform(source, result);
-            source = new DOMSource(result.getNode(), result.getSystemId());
+            source = new DOMSource(result.getNode(), source.getSystemId());
         }
 
         return (Document)result.getNode();
