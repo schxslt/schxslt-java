@@ -79,6 +79,24 @@ public final class Schematron
         transformerFactory.setURIResolver(resolver);
     }
 
+    Schematron (final Schematron orig)
+    {
+        this.schematron = orig.schematron;
+        this.resolver = orig.resolver;
+        this.options = orig.options;
+        this.transformerFactory = orig.transformerFactory;
+    }
+
+    public static Schematron newInstance (final Source schematron)
+    {
+        return new Schematron(schematron);
+    }
+
+    public static Schematron newInstance (final Source schematron, final String phase)
+    {
+        return new Schematron(schematron, phase);
+    }
+
     public Schematron withOptions (final Map<String,Object> opts)
     {
         Schematron newSchematron = new Schematron(this);
@@ -134,14 +152,6 @@ public final class Schematron
             validationStylesheet = compile();
         }
         return validationStylesheet;
-    }
-
-    Schematron (final Schematron orig)
-    {
-        this.schematron = orig.schematron;
-        this.resolver = orig.resolver;
-        this.options = orig.options;
-        this.transformerFactory = orig.transformerFactory;
     }
 
     Document loadSchematron (final Source source)
