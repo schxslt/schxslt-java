@@ -121,6 +121,13 @@ public final class Schematron
         return newSchematron;
     }
 
+    public Schematron withPhase (final String phase)
+    {
+        Schematron newSchematron = new Schematron(this);
+        newSchematron.options.put("phase", phase);
+        return newSchematron;
+    }
+
     public Result validate (final Source document) throws SchematronException
     {
         return validate(document, null);
