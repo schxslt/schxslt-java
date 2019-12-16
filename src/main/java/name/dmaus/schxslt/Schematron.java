@@ -45,6 +45,10 @@ import java.util.logging.Logger;
 
 import java.nio.file.Paths;
 
+/**
+ * The class uses a functional interface to parametrize an instance. I.e. a call to a method starting with 'with'
+ * creates a new parametrized instance.
+ */
 public final class Schematron
 {
     static final Logger log = Logger.getLogger(Schematron.class.getName());
@@ -97,6 +101,12 @@ public final class Schematron
         return new Schematron(schematron, phase);
     }
 
+    /**
+     * Return a new instance with the specified compiler options.
+     *
+     * @param  opts Compiler options
+     * @return Parametrized instance
+     */
     public Schematron withOptions (final Map<String,Object> opts)
     {
         Schematron newSchematron = new Schematron(this);
@@ -104,6 +114,12 @@ public final class Schematron
         return newSchematron;
     }
 
+    /**
+     * Return a new instance with the specified transformer factory.
+     *
+     * @param  factory Transformer factory
+     * @return Parametrized instance
+     */
     public Schematron withTransformerFactory (final TransformerFactory factory)
     {
         Schematron newSchematron = new Schematron(this);
@@ -111,6 +127,12 @@ public final class Schematron
         return newSchematron;
     }
 
+    /**
+     * Returns a new instance for the specified compilation pipeline .
+     *
+     * @param  steps Stylesheets used to create the validation stylesheet
+     * @return Parametrized instance
+     */
     public Schematron withPipelineSteps (final String[] steps)
     {
         if (steps.length == 0) {
@@ -121,6 +143,12 @@ public final class Schematron
         return newSchematron;
     }
 
+    /**
+     * Returns a new instance for the specified validation phase.
+     *
+     * @param  phase Validation phase
+     * @return Parametrized instance
+     */
     public Schematron withPhase (final String phase)
     {
         Schematron newSchematron = new Schematron(this);
@@ -133,6 +161,15 @@ public final class Schematron
         return validate(document, null);
     }
 
+    /**
+     * Performs the validation and returns the validation result.
+     *
+     * @throws SchematronException A checked exception occured during validation
+     *
+     * @param  document   The document to validate
+     * @param  parameters Parameters for the validation stylesheet
+     * @return The validation result
+     */
     public Result validate (final Source document, final Map<String,Object> parameters) throws SchematronException
     {
         try {
@@ -153,6 +190,13 @@ public final class Schematron
         }
     }
 
+    /**
+     * Compiles and returns the validation stylesheet.
+     *
+     * @throws SchematronException If compiling the validation stylesheet fails
+     *
+     * @return The compiled validation stylesheet
+     */
     public Document getValidationStylesheet () throws SchematronException
     {
         if (validationStylesheet == null) {
