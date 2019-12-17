@@ -229,18 +229,21 @@ public final class Schematron
         try {
             Transformer[] pipeline;
 
-            String queryBinding = schematron.getDocumentElement().getAttribute("queryBinding").toLowerCase();
-            switch (queryBinding) {
-            case "":
-            case "xslt":
-                pipelineSteps = xslt10steps;
-                break;
-            case "xslt2":
-            case "xslt3":
-                pipelineSteps = xslt20steps;
-                break;
-            default:
-                throw new SchematronException("Unsupported query language: " + queryBinding);
+            if (pipelineSteps == null) {
+
+                String queryBinding = schematron.getDocumentElement().getAttribute("queryBinding").toLowerCase();
+                switch (queryBinding) {
+                case "":
+                case "xslt":
+                    pipelineSteps = xslt10steps;
+                    break;
+                case "xslt2":
+                case "xslt3":
+                    pipelineSteps = xslt20steps;
+                    break;
+                default:
+                    throw new SchematronException("Unsupported query language: " + queryBinding);
+                }
             }
 
             pipeline = createPipeline(pipelineSteps);
