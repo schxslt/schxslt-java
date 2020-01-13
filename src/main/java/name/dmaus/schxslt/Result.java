@@ -31,6 +31,9 @@ import org.w3c.dom.NodeList;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * Schematron validation result.
+ */
 public final class Result
 {
     static final String SVRL = "http://purl.oclc.org/dsdl/svrl";
@@ -46,16 +49,32 @@ public final class Result
         readMessages(report.getElementsByTagNameNS(SVRL, "successful-report"));
     }
 
+    /**
+     * Return list of validation messages.
+     *
+     * @return Validation messages.
+     */
     public List<String> getValidationMessages ()
     {
         return messages;
     }
 
+    /**
+     * Returns the validation report.
+     *
+     * @return Validation report
+     */
     public Document getValidationReport ()
     {
         return report;
     }
 
+
+    /**
+     * Returns true if the validated document is valid.
+     *
+     * @return True if the validated document is valid
+     */
     public boolean isValid ()
     {
         return messages.isEmpty();
