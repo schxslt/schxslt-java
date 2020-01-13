@@ -46,6 +46,8 @@ import java.util.logging.Logger;
 import java.nio.file.Paths;
 
 /**
+ * Main entry point for Schematron validation.
+ *
  * The class uses a functional interface to parametrize an instance. I.e. a call to a method starting with 'with'
  * creates a new parametrized instance.
  */
