@@ -209,7 +209,7 @@ public final class Schematron
 
     Document loadSchematron (final Source source)
     {
-        String systemId = Paths.get(source.getSystemId()).toUri().toString();
+        String systemId = source.getSystemId();
         log.fine("Schematron base URI is " + systemId);
 
         try {
