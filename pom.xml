@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>name.dmaus.schxslt</groupId>
   <artifactId>java</artifactId>
-  <version>2.0</version>
+  <version>2.0.1-SNAPSHOT</version>
 
   <name>SchXslt Java</name>
   <description>Java classes for Schematron validation with SchXslt</description>
@@ -27,6 +27,7 @@
   <scm>
     <url>https://github.com/schxslt/schxslt-java</url>
     <connection>scm:git:https://github.com/schxslt/schxslt-java.git</connection>
+    <developerConnection>scm:git:https://github.com/schxslt/schxslt-java.git</developerConnection>
   </scm>
 
   <issueManagement>
@@ -127,6 +128,14 @@
       </testResource>
     </testResources>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>3.0.0-M1</version>
+        <configuration>
+          <tagNameFormat>v@{project.version}</tagNameFormat>
+        </configuration>
+      </plugin>
       <!-- Required to make mvn site work -->
       <!-- Cf. https://www.mkyong.com/maven/mvn-site-java-lang-classnotfoundexception-org-apache-maven-doxia-siterenderer-documentcontent/ -->
       <plugin>
