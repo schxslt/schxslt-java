@@ -63,7 +63,12 @@ public final class Schematron
 
     Map<String,Object> options = new HashMap<String,Object>();
 
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    /**
+     * Threadsafe as long as you don't reconfigure
+     */
+    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+
+    TransformerFactory transformerFactory = TRANSFORMER_FACTORY;
 
     Document validationStylesheet;
 
