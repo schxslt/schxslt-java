@@ -35,6 +35,7 @@ import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.Document;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -42,10 +43,11 @@ import java.util.List;
 import java.util.ArrayList;
 
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Main entry point for Schematron validation. This class takes care of turning the supplied schematron into a stylesheet.
- * The stylesheet can be a version 2 or 1, depending on the attribute "@queryBinding" with value "xslt1" or "xslt2"
+ * The stylesheet can be a version 2 or 1, depending on the attribute "@queryBinding" with value "xslt", "xslt2" or "xslt3"
  * on the sch:schema root. Calls to validate are threadsafe.
  *
  * The class uses a functional interface to parametrize an instance. I.e. a call to a method starting with 'with'
@@ -56,6 +58,9 @@ public final class Schematron
     private static final Logger log = Logger.getLogger(Schematron.class.getName());
     private static final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
     private static final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
+    public static final String XSLT = "xslt";
+    public static final String XSLT_2 = "xslt2";
+    public static final String XSLT_3 = "xslt3";
 
     private final Document schematron;
 
@@ -252,11 +257,16 @@ public final class Schematron
                 String queryBinding = schematron.getDocumentElement().getAttribute("queryBinding").toLowerCase();
                 switch (queryBinding) {
                 case "":
-                case "xslt":
+                case XSLT:
+                    log.info(String.format("@queryBinding not found on <schema>, using xslt's: %s",
+                            Arrays.stream(xslt10steps).collect(Collectors.joining("; "))));
                     pipelineSteps = xslt10steps;
                     break;
-                case "xslt2":
-                case "xslt3":
+                case XSLT_2:
+                case XSLT_3:
+                    log.info(String.format("@queryBinding %s found on <schema>, using xslt's: %s",
+                            queryBinding,
+                            Arrays.stream(xslt20steps).collect(Collectors.joining("; "))));
                     pipelineSteps = xslt20steps;
                     break;
                 default:
