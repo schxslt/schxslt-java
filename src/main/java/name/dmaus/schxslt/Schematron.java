@@ -178,6 +178,9 @@ public final class Schematron
     public Result validate (final Source document, final Map<String,Object> parameters) throws SchematronException
     {
         try {
+            if (validatesTemplates==null) {
+                validatesTemplates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
+            }
             Transformer validation = validatesTemplates.newTransformer();
             if (parameters != null) {
                 for (Map.Entry<String,Object> param : parameters.entrySet()) {
@@ -260,8 +263,6 @@ public final class Schematron
             Document stylesheet = applyPipeline(pipeline, schemaSource);
             stylesheet.setDocumentURI(systemId);
             log.fine("Schematron base URI is " + stylesheet.getDocumentURI());
-
-            validatesTemplates = transformerFactory.newTemplates(new DOMSource(stylesheet));
 
             return stylesheet;
 
