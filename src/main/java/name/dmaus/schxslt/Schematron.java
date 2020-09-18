@@ -43,36 +43,36 @@ import java.util.ArrayList;
 
 import java.util.logging.Logger;
 
-import java.nio.file.Paths;
-
 /**
- * Main entry point for Schematron validation.
+ * Main entry point for Schematron validation. This class takes care of turning the supplied schematron into a stylesheet.
+ * The stylesheet can be a version 2 or 1, depending on the attribute "@queryBinding" with value "xslt1" or "xslt2"
+ * on the sch:schema root. Calls to validate are threadsafe.
  *
  * The class uses a functional interface to parametrize an instance. I.e. a call to a method starting with 'with'
  * creates a new parametrized instance.
  */
 public final class Schematron
 {
-    static final Logger log = Logger.getLogger(Schematron.class.getName());
-    static final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
-    static final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
+    private static final Logger log = Logger.getLogger(Schematron.class.getName());
+    private static final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
+    private static final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
 
-    final Document schematron;
+    private final Document schematron;
 
-    Resolver resolver = new Resolver();
+    private Resolver resolver = new Resolver();
 
-    Map<String,Object> options = new HashMap<String,Object>();
+    private Map<String,Object> options = new HashMap<>();
 
     /**
      * Threadsafe as long as you don't reconfigure
      */
     private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
 
-    TransformerFactory transformerFactory = TRANSFORMER_FACTORY;
+    private TransformerFactory transformerFactory = TRANSFORMER_FACTORY;
 
-    Document validationStylesheet;
+    private Document validationStylesheet;
 
-    String[] pipelineSteps;
+    private String[] pipelineSteps;
 
     public Schematron (final Source schematron)
     {
@@ -90,7 +90,7 @@ public final class Schematron
         transformerFactory.setURIResolver(resolver);
     }
 
-    Schematron (final Schematron orig)
+    private Schematron (final Schematron orig)
     {
         this.schematron = orig.schematron;
         this.resolver = orig.resolver;
@@ -163,6 +163,12 @@ public final class Schematron
         return newSchematron;
     }
 
+    /**
+     * validates without stylesheet parameters
+     * @param document
+     * @return
+     * @throws SchematronException
+     */
     public Result validate (final Source document) throws SchematronException
     {
         return validate(document, null);
@@ -198,7 +204,7 @@ public final class Schematron
     }
 
     /**
-     * Compiles and returns the validation stylesheet.
+     * Compiles and returns the validation stylesheet, caches in a field
      *
      * @throws SchematronException If compiling the validation stylesheet fails
      *
@@ -212,7 +218,12 @@ public final class Schematron
         return validationStylesheet;
     }
 
-    Document loadSchematron (final Source source)
+    /**
+     * initializes the schematron source as a Document
+     * @param source
+     * @return the schematron document
+     */
+    private Document loadSchematron (final Source source)
     {
         String systemId = source.getSystemId();
         log.fine("Schematron base URI is " + systemId);
@@ -231,7 +242,7 @@ public final class Schematron
         }
     }
 
-    Document compile () throws SchematronException
+    private Document compile () throws SchematronException
     {
         try {
             Transformer[] pipeline;
@@ -270,28 +281,28 @@ public final class Schematron
         }
     }
 
-    Document applyPipeline (final Transformer[] steps, final Source document) throws TransformerException
+    private Document applyPipeline (final Transformer[] steps, final Source document) throws TransformerException
     {
         DOMResult result = null;
         Source source = document;
 
-        for (int i = 0; i < steps.length; i++) {
+        for (Transformer step : steps) {
             result = new DOMResult();
-            steps[i].transform(source, result);
+            step.transform(source, result);
             source = new DOMSource(result.getNode(), source.getSystemId());
         }
 
         return (Document)result.getNode();
     }
 
-    Transformer[] createPipeline (final String[] steps) throws TransformerException
+    private Transformer[] createPipeline (final String[] steps) throws TransformerException
     {
-        final List<Transformer> templates = new ArrayList<Transformer>();
+        final List<Transformer> templates = new ArrayList<>();
 
-        for (int i = 0; i < steps.length; i++) {
-            final Source source = resolver.resolve(steps[i], null);
+        for (String step : steps) {
+            final Source source = resolver.resolve(step, null);
             final Transformer transformer = transformerFactory.newTransformer(source);
-            for (Map.Entry<String,Object> param : options.entrySet()) {
+            for (Map.Entry<String, Object> param : options.entrySet()) {
                 transformer.setParameter(param.getKey(), param.getValue());
             }
             templates.add(transformer);

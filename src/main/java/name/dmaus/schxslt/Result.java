@@ -39,7 +39,7 @@ public final class Result
     static final String SVRL = "http://purl.oclc.org/dsdl/svrl";
 
     final Document report;
-    final List<String> messages = new ArrayList<String>();
+    final List<String> messages = new ArrayList<>();
 
     Result (final Document report)
     {
