@@ -24,6 +24,7 @@
 
 package name.dmaus.schxslt;
 
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerException;
@@ -68,6 +69,8 @@ public final class Schematron
     Document validationStylesheet;
 
     String[] pipelineSteps;
+
+    private Templates validatesTemplates;
 
     public Schematron (final Source schematron)
     {
@@ -175,7 +178,7 @@ public final class Schematron
     public Result validate (final Source document, final Map<String,Object> parameters) throws SchematronException
     {
         try {
-            Transformer validation = transformerFactory.newTransformer(new DOMSource(getValidationStylesheet()));
+            Transformer validation = validatesTemplates.newTransformer();
             if (parameters != null) {
                 for (Map.Entry<String,Object> param : parameters.entrySet()) {
                     validation.setParameter(param.getKey(), param.getValue());
@@ -257,6 +260,8 @@ public final class Schematron
             Document stylesheet = applyPipeline(pipeline, schemaSource);
             stylesheet.setDocumentURI(systemId);
             log.fine("Schematron base URI is " + stylesheet.getDocumentURI());
+
+            validatesTemplates = transformerFactory.newTemplates(new DOMSource(stylesheet));
 
             return stylesheet;
 
