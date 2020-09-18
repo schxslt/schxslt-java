@@ -179,7 +179,9 @@ public final class Schematron
     {
         try {
             if (validatesTemplates==null) {
-                validatesTemplates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
+                synchronized (this) {
+                    validatesTemplates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
+                }
             }
             Transformer validation = validatesTemplates.newTransformer();
             if (parameters != null) {
