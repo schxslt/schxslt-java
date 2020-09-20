@@ -132,16 +132,15 @@ public final class Schematron
 
 
     /**
-     * Return a new instance with the specified resolver.
+     * Return this instance with the specified resolver.
      *
      * @param  resolver The resolver to use
      * @return Parametrized instance
      */
     public Schematron withResolver (final URIResolver resolver)
     {
-        Schematron newSchematron = new Schematron(this);
-        newSchematron.resolver = resolver;
-        return newSchematron;
+        this.resolver = resolver;
+        return this;
     }
 
     /**
