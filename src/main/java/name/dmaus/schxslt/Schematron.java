@@ -104,33 +104,31 @@ public final class Schematron
     }
 
     /**
-     * Return a new instance with the specified compiler options.
+     * Return this instance with the specified compiler options.
      *
      * @param  opts Compiler options
      * @return Parametrized instance
      */
     public Schematron withOptions (final Map<String,Object> opts)
     {
-        Schematron newSchematron = new Schematron(this);
-        newSchematron.options = opts;
-        return newSchematron;
+        options = opts;
+        return this;
     }
 
     /**
-     * Return a new instance with the specified transformer factory.
+     * Return this instance with the specified transformer factory.
      *
      * @param  factory Transformer factory
      * @return Parametrized instance
      */
     public Schematron withTransformerFactory (final TransformerFactory factory)
     {
-        Schematron newSchematron = new Schematron(this);
-        newSchematron.transformerFactory = factory;
-        return newSchematron;
+        transformerFactory = factory;
+        return this;
     }
 
     /**
-     * Returns a new instance for the specified compilation pipeline .
+     * Returns this instance for the specified compilation pipeline .
      *
      * @param  steps Stylesheets used to create the validation stylesheet
      * @return Parametrized instance
@@ -140,22 +138,20 @@ public final class Schematron
         if (steps.length == 0) {
             throw new IllegalArgumentException("A transformation pipeline must have a least one step");
         }
-        Schematron newSchematron = new Schematron(this);
-        newSchematron.pipelineSteps = steps;
-        return newSchematron;
+        pipelineSteps = steps;
+        return this;
     }
 
     /**
-     * Returns a new instance for the specified validation phase.
+     * Returns this instance for the specified validation phase.
      *
      * @param  phase Validation phase
      * @return Parametrized instance
      */
     public Schematron withPhase (final String phase)
     {
-        Schematron newSchematron = new Schematron(this);
-        newSchematron.options.put("phase", phase);
-        return newSchematron;
+        options.put("phase", phase);
+        return this;
     }
 
     public Result validate (final Source document) throws SchematronException
