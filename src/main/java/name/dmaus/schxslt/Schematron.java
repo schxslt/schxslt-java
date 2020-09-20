@@ -31,6 +31,7 @@ import javax.xml.transform.TransformerException;
 
 import javax.xml.transform.Source;
 
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 
@@ -60,7 +61,7 @@ public final class Schematron
 
     final Document schematron;
 
-    Resolver resolver = new Resolver();
+    URIResolver resolver = new Resolver();
 
     Map<String,Object> options = new HashMap<String,Object>();
 
@@ -129,6 +130,20 @@ public final class Schematron
     {
         Schematron newSchematron = new Schematron(this);
         newSchematron.transformerFactory = factory;
+        return newSchematron;
+    }
+
+
+    /**
+     * Return a new instance with the specified resolver.
+     *
+     * @param  resolver The resolver to use
+     * @return Parametrized instance
+     */
+    public Schematron withResolver (final URIResolver resolver)
+    {
+        Schematron newSchematron = new Schematron(this);
+        newSchematron.resolver = resolver;
         return newSchematron;
     }
 
