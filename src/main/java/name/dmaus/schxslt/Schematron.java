@@ -66,8 +66,6 @@ public final class Schematron
 
     private TransformerFactory transformerFactory = TransformerFactory.newInstance();
 
-    private Document validationStylesheet;
-
     private String[] pipelineSteps;
 
     private Templates validatesTemplates;
