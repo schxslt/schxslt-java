@@ -58,17 +58,17 @@ public final class Schematron
     static final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
     static final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
 
-    final Document schematron;
+    final private Document schematron;
 
-    Resolver resolver = new Resolver();
+    private Resolver resolver = new Resolver();
 
-    Map<String,Object> options = new HashMap<String,Object>();
+    private Map<String,Object> options = new HashMap<String,Object>();
 
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    private TransformerFactory transformerFactory = TransformerFactory.newInstance();
 
-    Document validationStylesheet;
+    private Document validationStylesheet;
 
-    String[] pipelineSteps;
+    private String[] pipelineSteps;
 
     private Templates validatesTemplates;
 
@@ -88,7 +88,7 @@ public final class Schematron
         transformerFactory.setURIResolver(resolver);
     }
 
-    Schematron (final Schematron orig)
+    private Schematron (final Schematron orig)
     {
         this.schematron = orig.schematron;
         this.resolver = orig.resolver;
@@ -215,7 +215,7 @@ public final class Schematron
         return validationStylesheet;
     }
 
-    Document loadSchematron (final Source source)
+    private Document loadSchematron (final Source source)
     {
         String systemId = source.getSystemId();
         log.fine("Schematron base URI is " + systemId);
@@ -234,7 +234,7 @@ public final class Schematron
         }
     }
 
-    Document compile () throws SchematronException
+    private Document compile () throws SchematronException
     {
         try {
             Transformer[] pipeline;
@@ -273,7 +273,7 @@ public final class Schematron
         }
     }
 
-    Document applyPipeline (final Transformer[] steps, final Source document) throws TransformerException
+    private Document applyPipeline (final Transformer[] steps, final Source document) throws TransformerException
     {
         DOMResult result = null;
         Source source = document;
@@ -287,7 +287,7 @@ public final class Schematron
         return (Document)result.getNode();
     }
 
-    Transformer[] createPipeline (final String[] steps) throws TransformerException
+    private Transformer[] createPipeline (final String[] steps) throws TransformerException
     {
         final List<Transformer> templates = new ArrayList<Transformer>();
 

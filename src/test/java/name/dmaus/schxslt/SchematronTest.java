@@ -25,11 +25,11 @@
 package name.dmaus.schxslt;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 
 import java.util.HashMap;
@@ -46,6 +46,36 @@ public class SchematronTest
         System.setProperty("javax.xml.transform.TransformerFactory", "net.sf.saxon.TransformerFactoryImpl");
         System.setProperty("xml.catalog.files", SchematronTest.class.getResource("/catalog.xml").toString());
     }
+
+    @Test
+    public void functionalConstructorWithOptions ()
+    {
+        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "always-valid");
+        assertNotEquals(schematron, schematron.withOptions(new HashMap<String,Object>()));
+    }
+
+    @Test
+    public void functionalConstructorWithTransformerFactory ()
+    {
+        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "always-valid");
+        assertNotEquals(schematron, schematron.withTransformerFactory(TransformerFactory.newInstance()));
+    }
+
+    @Test
+    public void functionalConstructorWithPipelineSteps ()
+    {
+        String[] steps = {"foo"};
+        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "always-valid");
+        assertNotEquals(schematron, schematron.withPipelineSteps(steps));
+    }
+
+    @Test
+    public void functionalConstructorWithPhase ()
+    {
+        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "always-valid");
+        assertNotEquals(schematron, schematron.withPhase("phase"));
+    }
+
 
     @Test
     public void newSchematronForXSLT10 () throws Exception
