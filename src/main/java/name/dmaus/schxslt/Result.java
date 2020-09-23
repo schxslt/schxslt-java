@@ -30,6 +30,7 @@ import org.w3c.dom.NodeList;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Schematron validation result.
@@ -39,7 +40,7 @@ public final class Result
     static final String SVRL = "http://purl.oclc.org/dsdl/svrl";
 
     final Document report;
-    final List<String> messages = new ArrayList<String>();
+    final List<String> messages = Collections.synchronizedList(new ArrayList<String>());
 
     Result (final Document report)
     {
