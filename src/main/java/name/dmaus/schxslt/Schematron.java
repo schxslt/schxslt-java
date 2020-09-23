@@ -44,8 +44,6 @@ import java.util.ArrayList;
 
 import java.util.logging.Logger;
 
-import java.nio.file.Paths;
-
 /**
  * Main entry point for Schematron validation.
  *
