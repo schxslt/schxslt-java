@@ -45,8 +45,6 @@ import java.util.ArrayList;
 
 import java.util.logging.Logger;
 
-import java.nio.file.Paths;
-
 /**
  * Main entry point for Schematron validation.
  *
@@ -137,13 +135,13 @@ public final class Schematron
     /**
      * Return a new instance with the specified resolver.
      *
-     * @param  resolver The resolver to use
+     * @param  customResolver The resolver to use
      * @return Parametrized instance
      */
-    public Schematron withResolver (final URIResolver resolver)
+    public Schematron withResolver (final URIResolver customResolver)
     {
         Schematron newSchematron = new Schematron(this);
-        newSchematron.resolver = resolver;
+        newSchematron.resolver = customResolver;
         return newSchematron;
     }
 

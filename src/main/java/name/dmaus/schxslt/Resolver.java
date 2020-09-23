@@ -33,8 +33,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
- * This default resolver finds xslt's in the schxslt jar on the classpath, if
- * desired, you can use your own resolver, {@link Schematron#withResolver(URIResolver)}
+ * This default resolver finds xslt's in the schxslt jar on the classpath. If
+ * desired, you can use your own resolver.
+ *
+ * @see Schematron#withResolver(URIResolver)
  */
 class Resolver implements URIResolver
 {
@@ -43,7 +45,6 @@ class Resolver implements URIResolver
     Resolver ()
     {}
 
-    @Override
     public Source resolve (final String href, final String base) throws TransformerException
     {
         URI baseUri;
