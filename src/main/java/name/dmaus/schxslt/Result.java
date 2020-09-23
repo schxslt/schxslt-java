@@ -37,10 +37,10 @@ import java.util.Collections;
  */
 public final class Result
 {
-    static final String SVRL = "http://purl.oclc.org/dsdl/svrl";
+    static final private String SVRL = "http://purl.oclc.org/dsdl/svrl";
 
-    final Document report;
-    final List<String> messages = Collections.synchronizedList(new ArrayList<String>());
+    final private Document report;
+    final private List<String> messages = Collections.synchronizedList(new ArrayList<String>());
 
     Result (final Document report)
     {
@@ -81,7 +81,7 @@ public final class Result
         return messages.isEmpty();
     }
 
-    void readMessages (final NodeList nodes)
+    private void readMessages (final NodeList nodes)
     {
         for (int i = 0; i < nodes.getLength(); i++) {
             Element element = (Element)nodes.item(i);
