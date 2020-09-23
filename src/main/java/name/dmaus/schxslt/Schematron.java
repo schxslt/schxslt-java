@@ -209,10 +209,7 @@ public final class Schematron
      */
     public Document getValidationStylesheet () throws SchematronException
     {
-        if (validationStylesheet == null) {
-            validationStylesheet = compile();
-        }
-        return validationStylesheet;
+        return compile();
     }
 
     private Document loadSchematron (final Source source)
