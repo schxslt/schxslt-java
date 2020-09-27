@@ -24,18 +24,19 @@
 
 package name.dmaus.schxslt;
 
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerException;
 
 import javax.xml.transform.Source;
 
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.Document;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -43,41 +44,37 @@ import java.util.List;
 import java.util.ArrayList;
 
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
- * Main entry point for Schematron validation. This class takes care of turning the supplied schematron into a stylesheet.
- * The stylesheet can be a version 2 or 1, depending on the attribute "@queryBinding" with value "xslt", "xslt2" or "xslt3"
- * on the sch:schema root. Calls to validate are threadsafe.
+ * Main entry point for Schematron validation.
  *
- * The class uses a functional interface to parametrize an instance. I.e. a call to a method starting with 'with'
- * creates a new parametrized instance.
+ * <p>The class uses a functional interface to parametrize an instance. I.e. a call to a method starting with 'with'
+ * creates a new parametrized instance.</p>
  */
 public final class Schematron
 {
-    private static final Logger log = Logger.getLogger(Schematron.class.getName());
-    private static final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
-    private static final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
-    public static final String XSLT = "xslt";
-    public static final String XSLT_2 = "xslt2";
-    public static final String XSLT_3 = "xslt3";
+    private static final Logger LOGGER = Logger.getLogger(Schematron.class.getName());
+    private static final String[] XSLT10STEPS = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
+    private static final String[] XSLT20STEPS = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
+
+    private static final String QUERYBINDING_XSLT1 = "xslt";
+    private static final String QUERYBINDING_XSLT2 = "xslt2";
+    private static final String QUERYBINDING_XSLT3 = "xslt3";
+    private static final String QUERYBINDING_DEFAULT = "";
+
+    private static final String PHASE = "phase";
 
     private final Document schematron;
 
-    private Resolver resolver = new Resolver();
+    private URIResolver resolver = new Resolver();
 
-    private Map<String,Object> options = new HashMap<>();
+    private Map<String, Object> options = new HashMap<String, Object>();
 
-    /**
-     * Threadsafe as long as you don't reconfigure
-     */
-    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
-
-    private TransformerFactory transformerFactory = TRANSFORMER_FACTORY;
-
-    private Document validationStylesheet;
+    private TransformerFactory transformerFactory = TransformerFactory.newInstance();
 
     private String[] pipelineSteps;
+
+    private Templates validatesTemplates;
 
     public Schematron (final Source schematron)
     {
@@ -89,7 +86,7 @@ public final class Schematron
         this.schematron = loadSchematron(schematron);
 
         if (phase != null) {
-            options.put("phase", phase);
+            options.put(PHASE, phase);
         }
 
         transformerFactory.setURIResolver(resolver);
@@ -119,10 +116,10 @@ public final class Schematron
      * @param  opts Compiler options
      * @return Parametrized instance
      */
-    public Schematron withOptions (final Map<String,Object> opts)
+    public Schematron withOptions (final Map<String, Object> opts)
     {
         Schematron newSchematron = new Schematron(this);
-        newSchematron.options = opts;
+        newSchematron.options.putAll(opts);
         return newSchematron;
     }
 
@@ -136,6 +133,23 @@ public final class Schematron
     {
         Schematron newSchematron = new Schematron(this);
         newSchematron.transformerFactory = factory;
+        return newSchematron;
+    }
+
+
+    /**
+     * Return a new instance with the specified resolver.
+     *
+     * @param  customResolver The resolver to use
+     * @return Parametrized instance
+     */
+    public Schematron withResolver (final URIResolver customResolver)
+    {
+        Schematron newSchematron = new Schematron(this);
+        newSchematron.resolver = customResolver;
+        synchronized (newSchematron.transformerFactory) {
+            newSchematron.transformerFactory.setURIResolver(customResolver);
+        }
         return newSchematron;
     }
 
@@ -164,16 +178,10 @@ public final class Schematron
     public Schematron withPhase (final String phase)
     {
         Schematron newSchematron = new Schematron(this);
-        newSchematron.options.put("phase", phase);
+        newSchematron.options.put(PHASE, phase);
         return newSchematron;
     }
 
-    /**
-     * validates without stylesheet parameters
-     * @param document
-     * @return
-     * @throws SchematronException
-     */
     public Result validate (final Source document) throws SchematronException
     {
         return validate(document, null);
@@ -182,18 +190,23 @@ public final class Schematron
     /**
      * Performs the validation and returns the validation result.
      *
-     * @throws SchematronException A checked exception occured during validation
-     *
      * @param  document   The document to validate
      * @param  parameters Parameters for the validation stylesheet
      * @return The validation result
+     *
+     * @throws SchematronException A checked exception occured during validation
      */
-    public Result validate (final Source document, final Map<String,Object> parameters) throws SchematronException
+    public Result validate (final Source document, final Map<String, Object> parameters) throws SchematronException
     {
         try {
-            Transformer validation = transformerFactory.newTransformer(new DOMSource(getValidationStylesheet()));
+            if (validatesTemplates == null) {
+                synchronized (this) {
+                    validatesTemplates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
+                }
+            }
+            Transformer validation = validatesTemplates.newTransformer();
             if (parameters != null) {
-                for (Map.Entry<String,Object> param : parameters.entrySet()) {
+                for (Map.Entry<String, Object> param : parameters.entrySet()) {
                     validation.setParameter(param.getKey(), param.getValue());
                 }
             }
@@ -209,29 +222,20 @@ public final class Schematron
     }
 
     /**
-     * Compiles and returns the validation stylesheet, caches in a field
-     *
-     * @throws SchematronException If compiling the validation stylesheet fails
+     * Compiles and returns the validation stylesheet.
      *
      * @return The compiled validation stylesheet
+     *
+     * @throws SchematronException If compiling the validation stylesheet fails
      */
     public Document getValidationStylesheet () throws SchematronException
     {
-        if (validationStylesheet == null) {
-            validationStylesheet = compile();
-        }
-        return validationStylesheet;
+        return compile();
     }
 
-    /**
-     * initializes the schematron source as a Document
-     * @param source
-     * @return the schematron document
-     */
     private Document loadSchematron (final Source source)
     {
         String systemId = source.getSystemId();
-        log.fine("Schematron base URI is " + systemId);
 
         try {
             Transformer identityTransformer = transformerFactory.newTransformer();
@@ -256,33 +260,27 @@ public final class Schematron
 
                 String queryBinding = schematron.getDocumentElement().getAttribute("queryBinding").toLowerCase();
                 switch (queryBinding) {
-                case "":
-                case XSLT:
-                    log.info(String.format("@queryBinding not found on <schema>, using xslt's: %s",
-                            Arrays.stream(xslt10steps).collect(Collectors.joining("; "))));
-                    pipelineSteps = xslt10steps;
+                case QUERYBINDING_DEFAULT:
+                case QUERYBINDING_XSLT1:
+                    pipelineSteps = XSLT10STEPS;
                     break;
-                case XSLT_2:
-                case XSLT_3:
-                    log.info(String.format("@queryBinding %s found on <schema>, using xslt's: %s",
-                            queryBinding,
-                            Arrays.stream(xslt20steps).collect(Collectors.joining("; "))));
-                    pipelineSteps = xslt20steps;
+                case QUERYBINDING_XSLT2:
+                case QUERYBINDING_XSLT3:
+                    pipelineSteps = XSLT20STEPS;
                     break;
                 default:
                     throw new SchematronException("Unsupported query language: " + queryBinding);
                 }
+                LOGGER.info(String.format("Query binding %s found, using %s", queryBinding, String.join(", ", pipelineSteps)));
             }
 
             pipeline = createPipeline(pipelineSteps);
 
             String systemId = schematron.getDocumentURI();
             DOMSource schemaSource = new DOMSource(schematron, systemId);
-            log.fine("Schematron base URI is " + schemaSource.getSystemId());
 
             Document stylesheet = applyPipeline(pipeline, schemaSource);
             stylesheet.setDocumentURI(systemId);
-            log.fine("Schematron base URI is " + stylesheet.getDocumentURI());
 
             return stylesheet;
 
@@ -296,9 +294,9 @@ public final class Schematron
         DOMResult result = null;
         Source source = document;
 
-        for (Transformer step : steps) {
+        for (int i = 0; i < steps.length; i++) {
             result = new DOMResult();
-            step.transform(source, result);
+            steps[i].transform(source, result);
             source = new DOMSource(result.getNode(), source.getSystemId());
         }
 
@@ -307,10 +305,10 @@ public final class Schematron
 
     private Transformer[] createPipeline (final String[] steps) throws TransformerException
     {
-        final List<Transformer> templates = new ArrayList<>();
+        final List<Transformer> templates = new ArrayList<Transformer>();
 
-        for (String step : steps) {
-            final Source source = resolver.resolve(step, null);
+        for (int i = 0; i < steps.length; i++) {
+            final Source source = resolver.resolve(steps[i], null);
             final Transformer transformer = transformerFactory.newTransformer(source);
             for (Map.Entry<String, Object> param : options.entrySet()) {
                 transformer.setParameter(param.getKey(), param.getValue());
