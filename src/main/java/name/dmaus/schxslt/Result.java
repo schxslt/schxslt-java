@@ -40,7 +40,7 @@ public final class Result
     static final private String SVRL = "http://purl.oclc.org/dsdl/svrl";
 
     final private Document report;
-    final private List<String> messages = Collections.synchronizedList(new ArrayList<String>());
+    final private List<String> validationMessages = Collections.synchronizedList(new ArrayList<String>());
 
     Result (final Document report)
     {
@@ -57,7 +57,7 @@ public final class Result
      */
     public List<String> getValidationMessages ()
     {
-        return messages;
+        return validationMessages;
     }
 
     /**
@@ -78,7 +78,7 @@ public final class Result
      */
     public boolean isValid ()
     {
-        return messages.isEmpty();
+        return validationMessages.isEmpty();
     }
 
     private void readMessages (final NodeList nodes)
@@ -86,7 +86,7 @@ public final class Result
         for (int i = 0; i < nodes.getLength(); i++) {
             Element element = (Element)nodes.item(i);
             String message = String.format("%s %s %s", element.getLocalName(), element.getAttribute("location"), element.getTextContent());
-            messages.add(message);
+            validationMessages.add(message);
         }
     }
 }
