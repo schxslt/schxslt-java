@@ -147,6 +147,9 @@ public final class Schematron
     {
         Schematron newSchematron = new Schematron(this);
         newSchematron.resolver = customResolver;
+        synchronized (newSchematron.transformerFactory) {
+            newSchematron.transformerFactory.setURIResolver(customResolver);
+        }
         return newSchematron;
     }
 
