@@ -39,6 +39,7 @@ public class SchematronTest
     final String simpleSchema10 = "/simple-schema-10.sch";
     final String simpleSchema20 = "/simple-schema-20.sch";
     final String simpleSchema20catalog = "/simple-schema-20-catalog.sch";
+    final String simpleSchema20WithPhase = "/simple-schema-20-phase.sch";
 
     @BeforeAll
     public static void init ()
@@ -52,6 +53,14 @@ public class SchematronTest
     {
         Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "always-valid");
         assertNotEquals(schematron, schematron.withOptions(new HashMap<String,Object>()));
+    }
+
+    @Test
+    public void functionalConstructorWithOptionsKeepsPhase () throws Exception
+    {
+        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema20WithPhase), "phase");
+        Result result = schematron.withOptions(new HashMap<String,Object>()).validate(getResourceAsStream(simpleSchema10));
+        assertTrue(result.isValid());
     }
 
     @Test
