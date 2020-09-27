@@ -30,23 +30,26 @@ import org.w3c.dom.NodeList;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Schematron validation result.
  */
 public final class Result
 {
-    static final String SVRL = "http://purl.oclc.org/dsdl/svrl";
+    private static final String SVRL = "http://purl.oclc.org/dsdl/svrl";
 
-    final Document report;
-    final List<String> messages = new ArrayList<String>();
+    private final Document report;
+    private final List<String> validationMessages;
 
     Result (final Document report)
     {
         this.report = report;
 
-        readMessages(report.getElementsByTagNameNS(SVRL, "failed-assert"));
-        readMessages(report.getElementsByTagNameNS(SVRL, "successful-report"));
+        List<String> messages = new ArrayList<String>();
+        readMessages(messages, report.getElementsByTagNameNS(SVRL, "failed-assert"));
+        readMessages(messages, report.getElementsByTagNameNS(SVRL, "successful-report"));
+        validationMessages = Collections.unmodifiableList(messages);
     }
 
     /**
@@ -56,7 +59,7 @@ public final class Result
      */
     public List<String> getValidationMessages ()
     {
-        return messages;
+        return validationMessages;
     }
 
     /**
@@ -77,10 +80,10 @@ public final class Result
      */
     public boolean isValid ()
     {
-        return messages.isEmpty();
+        return validationMessages.isEmpty();
     }
 
-    void readMessages (final NodeList nodes)
+    private void readMessages (final List<String> messages, final NodeList nodes)
     {
         for (int i = 0; i < nodes.getLength(); i++) {
             Element element = (Element)nodes.item(i);

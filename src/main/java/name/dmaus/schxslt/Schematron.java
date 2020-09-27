@@ -53,21 +53,19 @@ import java.util.logging.Logger;
  */
 public final class Schematron
 {
-    static final Logger log = Logger.getLogger(Schematron.class.getName());
-    static final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
-    static final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
+    private static final Logger log = Logger.getLogger(Schematron.class.getName());
+    private static final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
+    private static final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
 
-    final Document schematron;
+    private final Document schematron;
 
-    URIResolver resolver = new Resolver();
+    private URIResolver resolver = new Resolver();
 
-    Map<String,Object> options = new HashMap<String,Object>();
+    private Map<String,Object> options = new HashMap<String,Object>();
 
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    private TransformerFactory transformerFactory = TransformerFactory.newInstance();
 
-    Document validationStylesheet;
-
-    String[] pipelineSteps;
+    private String[] pipelineSteps;
 
     private Templates validatesTemplates;
 
@@ -87,7 +85,7 @@ public final class Schematron
         transformerFactory.setURIResolver(resolver);
     }
 
-    Schematron (final Schematron orig)
+    private Schematron (final Schematron orig)
     {
         this.schematron = orig.schematron;
         this.resolver = orig.resolver;
@@ -114,7 +112,7 @@ public final class Schematron
     public Schematron withOptions (final Map<String,Object> opts)
     {
         Schematron newSchematron = new Schematron(this);
-        newSchematron.options = opts;
+        newSchematron.options.putAll(opts);
         return newSchematron;
     }
 
@@ -191,7 +189,7 @@ public final class Schematron
     public Result validate (final Source document, final Map<String,Object> parameters) throws SchematronException
     {
         try {
-            if (validatesTemplates==null) {
+            if (validatesTemplates == null) {
                 synchronized (this) {
                     validatesTemplates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
                 }
@@ -222,13 +220,10 @@ public final class Schematron
      */
     public Document getValidationStylesheet () throws SchematronException
     {
-        if (validationStylesheet == null) {
-            validationStylesheet = compile();
-        }
-        return validationStylesheet;
+        return compile();
     }
 
-    Document loadSchematron (final Source source)
+    private Document loadSchematron (final Source source)
     {
         String systemId = source.getSystemId();
         log.fine("Schematron base URI is " + systemId);
@@ -247,7 +242,7 @@ public final class Schematron
         }
     }
 
-    Document compile () throws SchematronException
+    private Document compile () throws SchematronException
     {
         try {
             Transformer[] pipeline;
@@ -286,7 +281,7 @@ public final class Schematron
         }
     }
 
-    Document applyPipeline (final Transformer[] steps, final Source document) throws TransformerException
+    private Document applyPipeline (final Transformer[] steps, final Source document) throws TransformerException
     {
         DOMResult result = null;
         Source source = document;
@@ -300,7 +295,7 @@ public final class Schematron
         return (Document)result.getNode();
     }
 
-    Transformer[] createPipeline (final String[] steps) throws TransformerException
+    private Transformer[] createPipeline (final String[] steps) throws TransformerException
     {
         final List<Transformer> templates = new ArrayList<Transformer>();
 

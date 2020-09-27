@@ -38,12 +38,9 @@ import java.net.URL;
  *
  * @see Schematron#withResolver(URIResolver)
  */
-class Resolver implements URIResolver
+final class Resolver implements URIResolver
 {
-    final org.xmlresolver.Resolver resolver = new org.xmlresolver.Resolver();
-
-    Resolver ()
-    {}
+    private final org.xmlresolver.Resolver resolver = new org.xmlresolver.Resolver();
 
     public Source resolve (final String href, final String base) throws TransformerException
     {
