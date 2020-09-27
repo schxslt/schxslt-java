@@ -262,6 +262,7 @@ public final class Schematron
                 default:
                     throw new SchematronException("Unsupported query language: " + queryBinding);
                 }
+                log.info(String.format("Query binding %s found, using %s", queryBinding, String.join(", ", pipelineSteps)));
             }
 
             pipeline = createPipeline(pipelineSteps);
