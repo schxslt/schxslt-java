@@ -27,7 +27,7 @@ package name.dmaus.schxslt;
 /**
  * This exception wraps all checked exceptions thrown during Schematron validation.
  */
-public class SchematronException extends Exception
+final public class SchematronException extends Exception
 {
     public SchematronException (final String message)
     {
