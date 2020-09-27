@@ -34,7 +34,7 @@ import javax.xml.transform.URIResolver;
 
 import javax.xml.transform.stream.StreamSource;
 
-class Resolver implements URIResolver
+final class Resolver implements URIResolver
 {
     final private org.xmlresolver.Resolver resolver = new org.xmlresolver.Resolver();
 
