@@ -38,9 +38,6 @@ final class Resolver implements URIResolver
 {
     final private org.xmlresolver.Resolver resolver = new org.xmlresolver.Resolver();
 
-    Resolver ()
-    {}
-
     public Source resolve (final String href, final String base) throws TransformerException
     {
         URI baseUri;
