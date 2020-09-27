@@ -52,11 +52,11 @@ import java.util.logging.Logger;
  */
 public final class Schematron
 {
-    static final private Logger log = Logger.getLogger(Schematron.class.getName());
-    static final private String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
-    static final private String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
+    private static final Logger log = Logger.getLogger(Schematron.class.getName());
+    private static final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
+    private static final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
 
-    final private Document schematron;
+    private final Document schematron;
 
     private Resolver resolver = new Resolver();
 

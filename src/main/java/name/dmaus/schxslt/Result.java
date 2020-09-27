@@ -37,10 +37,10 @@ import java.util.Collections;
  */
 public final class Result
 {
-    static final private String SVRL = "http://purl.oclc.org/dsdl/svrl";
+    private static final String SVRL = "http://purl.oclc.org/dsdl/svrl";
 
-    final private Document report;
-    final private List<String> validationMessages;
+    private final Document report;
+    private final List<String> validationMessages;
 
     Result (final Document report)
     {

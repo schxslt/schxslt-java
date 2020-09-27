@@ -36,7 +36,7 @@ import javax.xml.transform.stream.StreamSource;
 
 final class Resolver implements URIResolver
 {
-    final private org.xmlresolver.Resolver resolver = new org.xmlresolver.Resolver();
+    private final org.xmlresolver.Resolver resolver = new org.xmlresolver.Resolver();
 
     public Source resolve (final String href, final String base) throws TransformerException
     {
