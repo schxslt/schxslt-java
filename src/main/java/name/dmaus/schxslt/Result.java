@@ -40,14 +40,16 @@ public final class Result
     static final private String SVRL = "http://purl.oclc.org/dsdl/svrl";
 
     final private Document report;
-    final private List<String> validationMessages = Collections.synchronizedList(new ArrayList<String>());
+    final private List<String> validationMessages;
 
     Result (final Document report)
     {
         this.report = report;
 
-        readMessages(report.getElementsByTagNameNS(SVRL, "failed-assert"));
-        readMessages(report.getElementsByTagNameNS(SVRL, "successful-report"));
+        List<String> messages = new ArrayList<String>();
+        readMessages(messages, report.getElementsByTagNameNS(SVRL, "failed-assert"));
+        readMessages(messages, report.getElementsByTagNameNS(SVRL, "successful-report"));
+        validationMessages = Collections.unmodifiableList(messages);
     }
 
     /**
@@ -81,12 +83,12 @@ public final class Result
         return validationMessages.isEmpty();
     }
 
-    private void readMessages (final NodeList nodes)
+    private void readMessages (final List<String> messages, final NodeList nodes)
     {
         for (int i = 0; i < nodes.getLength(); i++) {
             Element element = (Element)nodes.item(i);
             String message = String.format("%s %s %s", element.getLocalName(), element.getAttribute("location"), element.getTextContent());
-            validationMessages.add(message);
+            messages.add(message);
         }
     }
 }
