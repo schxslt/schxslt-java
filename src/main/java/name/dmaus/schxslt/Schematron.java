@@ -111,7 +111,7 @@ public final class Schematron
     public Schematron withOptions (final Map<String,Object> opts)
     {
         Schematron newSchematron = new Schematron(this);
-        newSchematron.options = opts;
+        newSchematron.options.putAll(opts);
         return newSchematron;
     }
 
