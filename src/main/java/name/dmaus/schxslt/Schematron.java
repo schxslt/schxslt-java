@@ -57,6 +57,11 @@ public final class Schematron
     private static final String[] xslt10steps = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
     private static final String[] xslt20steps = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
 
+    private static final String QUERYBINDING_XSLT1 = "xslt";
+    private static final String QUERYBINDING_XSLT2 = "xslt2";
+    private static final String QUERYBINDING_XSLT3 = "xslt3";
+    private static final String QUERYBINDING_DEFAULT = "";
+
     private final Document schematron;
 
     private URIResolver resolver = new Resolver();
@@ -251,12 +256,12 @@ public final class Schematron
 
                 String queryBinding = schematron.getDocumentElement().getAttribute("queryBinding").toLowerCase();
                 switch (queryBinding) {
-                case "":
-                case "xslt":
+                case QUERYBINDING_DEFAULT:
+                case QUERYBINDING_XSLT1:
                     pipelineSteps = xslt10steps;
                     break;
-                case "xslt2":
-                case "xslt3":
+                case QUERYBINDING_XSLT2:
+                case QUERYBINDING_XSLT3:
                     pipelineSteps = xslt20steps;
                     break;
                 default:
