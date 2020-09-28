@@ -83,13 +83,13 @@ public final class Schematron
 
     public Schematron (final Source schematron, final String phase)
     {
+        transformerFactory=TransformerFactory.newInstance();
         this.schematron = loadSchematron(schematron);
 
         if (phase != null) {
             options.put(PHASE, phase);
         }
 
-        transformerFactory=TransformerFactory.newInstance();
         transformerFactory.setURIResolver(resolver);
     }
 
