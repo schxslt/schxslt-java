@@ -70,7 +70,7 @@ public final class Schematron
 
     private Map<String, Object> options = new HashMap<String, Object>();
 
-    private TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    private TransformerFactory transformerFactory;
 
     private String[] pipelineSteps;
 
@@ -89,6 +89,7 @@ public final class Schematron
             options.put(PHASE, phase);
         }
 
+        transformerFactory=TransformerFactory.newInstance();
         transformerFactory.setURIResolver(resolver);
     }
 
@@ -97,7 +98,7 @@ public final class Schematron
         this.schematron = orig.schematron;
         this.resolver = orig.resolver;
         this.options = orig.options;
-        this.transformerFactory = orig.transformerFactory;
+        this.transformerFactory = TransformerFactory.newInstance();
     }
 
     public static Schematron newInstance (final Source schematron)
