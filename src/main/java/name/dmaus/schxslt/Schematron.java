@@ -66,8 +66,6 @@ public final class Schematron
 
     private final Document schematron;
 
-    private URIResolver resolver = new Resolver();
-
     private Map<String, Object> options = new HashMap<String, Object>();
 
     private TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -83,19 +81,17 @@ public final class Schematron
 
     public Schematron (final Source schematron, final String phase)
     {
+        this.transformerFactory.setURIResolver(new Resolver());
         this.schematron = loadSchematron(schematron);
 
         if (phase != null) {
             options.put(PHASE, phase);
         }
-
-        transformerFactory.setURIResolver(resolver);
     }
 
     private Schematron (final Schematron orig)
     {
         this.schematron = orig.schematron;
-        this.resolver = orig.resolver;
         this.options = orig.options;
         this.transformerFactory = orig.transformerFactory;
     }
@@ -133,23 +129,6 @@ public final class Schematron
     {
         Schematron newSchematron = new Schematron(this);
         newSchematron.transformerFactory = factory;
-        return newSchematron;
-    }
-
-
-    /**
-     * Return a new instance with the specified resolver.
-     *
-     * @param  customResolver The resolver to use
-     * @return Parametrized instance
-     */
-    public Schematron withResolver (final URIResolver customResolver)
-    {
-        Schematron newSchematron = new Schematron(this);
-        newSchematron.resolver = customResolver;
-        synchronized (newSchematron.transformerFactory) {
-            newSchematron.transformerFactory.setURIResolver(customResolver);
-        }
         return newSchematron;
     }
 
@@ -305,6 +284,7 @@ public final class Schematron
 
     private Transformer[] createPipeline (final String[] steps) throws TransformerException
     {
+        final URIResolver resolver = transformerFactory.getURIResolver();
         final List<Transformer> templates = new ArrayList<Transformer>();
 
         for (int i = 0; i < steps.length; i++) {
