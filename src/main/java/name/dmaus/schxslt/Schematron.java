@@ -68,7 +68,7 @@ public final class Schematron
 
     private Map<String, Object> options = new HashMap<String, Object>();
 
-    private TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    private TransformerFactory transformerFactory;
 
     private String[] pipelineSteps;
 
@@ -76,17 +76,26 @@ public final class Schematron
 
     public Schematron (final Source schematron)
     {
-        this(schematron, null);
+        this(schematron, null, null);
     }
 
     public Schematron (final Source schematron, final String phase)
     {
-        this.transformerFactory.setURIResolver(new Resolver());
-        this.schematron = loadSchematron(schematron);
+        this(schematron, phase, null);
+    }
 
+    public Schematron (final Source schematron, final String phase, final TransformerFactory transformerFactory)
+    {
+        if (transformerFactory == null) {
+            this.transformerFactory = TransformerFactory.newInstance();
+            this.transformerFactory.setURIResolver(new Resolver());
+        } else {
+            this.transformerFactory = transformerFactory;
+        }
         if (phase != null) {
             options.put(PHASE, phase);
         }
+        this.schematron = loadSchematron(schematron);
     }
 
     private Schematron (final Schematron orig)
@@ -104,6 +113,11 @@ public final class Schematron
     public static Schematron newInstance (final Source schematron, final String phase)
     {
         return new Schematron(schematron, phase);
+    }
+
+    public static Schematron newInstance (final Source schematron, final String phase, final TransformerFactory transformerFactory)
+    {
+        return new Schematron(schematron, phase, transformerFactory);
     }
 
     /**
