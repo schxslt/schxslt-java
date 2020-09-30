@@ -86,14 +86,22 @@ public final class Schematron
 
     public Schematron (final Source schematron, final String phase, final TransformerFactory transformerFactory)
     {
+        this(schematron, phase, null, null);
+    }
+
+    public Schematron (final Source schematron, final String phase, final TransformerFactory transformerFactory, final Map<String, Object> options)
+    {
         if (transformerFactory == null) {
             this.transformerFactory = TransformerFactory.newInstance();
             this.transformerFactory.setURIResolver(new Resolver());
         } else {
             this.transformerFactory = transformerFactory;
         }
+        if (options != null) {
+            this.options.putAll(options);
+        }
         if (phase != null) {
-            options.put(PHASE, phase);
+            this.options.put(PHASE, phase);
         }
         this.schematron = loadSchematron(schematron);
     }
@@ -118,6 +126,11 @@ public final class Schematron
     public static Schematron newInstance (final Source schematron, final String phase, final TransformerFactory transformerFactory)
     {
         return new Schematron(schematron, phase, transformerFactory);
+    }
+
+    public static Schematron newInstance (final Source schematron, final String phase, final TransformerFactory transformerFactory, final Map<String, Object> options)
+    {
+        return new Schematron(schematron, phase, transformerFactory, options);
     }
 
     /**
