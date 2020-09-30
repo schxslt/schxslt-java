@@ -139,7 +139,7 @@ public final class Schematron
      * @param  opts Compiler options
      * @return Parametrized instance
      */
-    public Schematron withOptions (final Map<String, Object> opts)
+    @Deprecated public Schematron withOptions (final Map<String, Object> opts)
     {
         Schematron newSchematron = new Schematron(this);
         newSchematron.options.putAll(opts);
@@ -152,7 +152,7 @@ public final class Schematron
      * @param  factory Transformer factory
      * @return Parametrized instance
      */
-    public Schematron withTransformerFactory (final TransformerFactory factory)
+    @Deprecated public Schematron withTransformerFactory (final TransformerFactory factory)
     {
         Schematron newSchematron = new Schematron(this);
         newSchematron.transformerFactory = factory;
@@ -165,7 +165,7 @@ public final class Schematron
      * @param  steps Stylesheets used to create the validation stylesheet
      * @return Parametrized instance
      */
-    public Schematron withPipelineSteps (final String[] steps)
+    @Deprecated public Schematron withPipelineSteps (final String[] steps)
     {
         if (steps.length == 0) {
             throw new IllegalArgumentException("A transformation pipeline must have a least one step");
@@ -181,7 +181,7 @@ public final class Schematron
      * @param  phase Validation phase
      * @return Parametrized instance
      */
-    public Schematron withPhase (final String phase)
+    @Deprecated public Schematron withPhase (final String phase)
     {
         Schematron newSchematron = new Schematron(this);
         newSchematron.options.put(PHASE, phase);
