@@ -66,8 +66,6 @@ public final class Schematron
 
     private final Document schematron;
 
-    private URIResolver resolver = new Resolver();
-
     private Map<String, Object> options = new HashMap<String, Object>();
 
     private TransformerFactory transformerFactory;
@@ -78,27 +76,41 @@ public final class Schematron
 
     public Schematron (final Source schematron)
     {
-        this(schematron, null);
+        this(schematron, null, null);
     }
 
     public Schematron (final Source schematron, final String phase)
     {
-        transformerFactory=TransformerFactory.newInstance();
-        this.schematron = loadSchematron(schematron);
+        this(schematron, phase, null);
+    }
 
-        if (phase != null) {
-            options.put(PHASE, phase);
+    public Schematron (final Source schematron, final String phase, final TransformerFactory transformerFactory)
+    {
+        this(schematron, phase, null, null);
+    }
+
+    public Schematron (final Source schematron, final String phase, final TransformerFactory transformerFactory, final Map<String, Object> options)
+    {
+        if (transformerFactory == null) {
+            this.transformerFactory = TransformerFactory.newInstance();
+            this.transformerFactory.setURIResolver(new Resolver());
+        } else {
+            this.transformerFactory = transformerFactory;
         }
-
-        transformerFactory.setURIResolver(resolver);
+        if (options != null) {
+            this.options.putAll(options);
+        }
+        if (phase != null) {
+            this.options.put(PHASE, phase);
+        }
+        this.schematron = loadSchematron(schematron);
     }
 
     private Schematron (final Schematron orig)
     {
         this.schematron = orig.schematron;
-        this.resolver = orig.resolver;
         this.options = orig.options;
-        this.transformerFactory = TransformerFactory.newInstance();
+        this.transformerFactory = orig.transformerFactory;
     }
 
     public static Schematron newInstance (final Source schematron)
@@ -111,13 +123,24 @@ public final class Schematron
         return new Schematron(schematron, phase);
     }
 
+    public static Schematron newInstance (final Source schematron, final String phase, final TransformerFactory transformerFactory)
+    {
+        return new Schematron(schematron, phase, transformerFactory);
+    }
+
+    public static Schematron newInstance (final Source schematron, final String phase, final TransformerFactory transformerFactory, final Map<String, Object> options)
+    {
+        return new Schematron(schematron, phase, transformerFactory, options);
+    }
+
     /**
      * Return a new instance with the specified compiler options.
      *
      * @param  opts Compiler options
      * @return Parametrized instance
+     * @deprecated use constructors instead
      */
-    public Schematron withOptions (final Map<String, Object> opts)
+    @Deprecated public Schematron withOptions (final Map<String, Object> opts)
     {
         Schematron newSchematron = new Schematron(this);
         newSchematron.options.putAll(opts);
@@ -129,26 +152,12 @@ public final class Schematron
      *
      * @param  factory Transformer factory
      * @return Parametrized instance
+     * @deprecated use constructors instead
      */
-    public Schematron withTransformerFactory (final TransformerFactory factory)
+    @Deprecated public Schematron withTransformerFactory (final TransformerFactory factory)
     {
         Schematron newSchematron = new Schematron(this);
         newSchematron.transformerFactory = factory;
-        return newSchematron;
-    }
-
-
-    /**
-     * Return a new instance with the specified resolver.
-     *
-     * @param  customResolver The resolver to use
-     * @return Parametrized instance
-     */
-    public Schematron withResolver (final URIResolver customResolver)
-    {
-        Schematron newSchematron = new Schematron(this);
-        newSchematron.resolver = customResolver;
-        newSchematron.transformerFactory.setURIResolver(customResolver);
         return newSchematron;
     }
 
@@ -157,8 +166,9 @@ public final class Schematron
      *
      * @param  steps Stylesheets used to create the validation stylesheet
      * @return Parametrized instance
+     * @deprecated use constructors instead
      */
-    public Schematron withPipelineSteps (final String[] steps)
+    @Deprecated public Schematron withPipelineSteps (final String[] steps)
     {
         if (steps.length == 0) {
             throw new IllegalArgumentException("A transformation pipeline must have a least one step");
@@ -173,8 +183,9 @@ public final class Schematron
      *
      * @param  phase Validation phase
      * @return Parametrized instance
+     * @deprecated use constructors instead
      */
-    public Schematron withPhase (final String phase)
+    @Deprecated public Schematron withPhase (final String phase)
     {
         Schematron newSchematron = new Schematron(this);
         newSchematron.options.put(PHASE, phase);
@@ -304,6 +315,7 @@ public final class Schematron
 
     private Transformer[] createPipeline (final String[] steps) throws TransformerException
     {
+        final URIResolver resolver = transformerFactory.getURIResolver();
         final List<Transformer> templates = new ArrayList<Transformer>();
 
         for (int i = 0; i < steps.length; i++) {

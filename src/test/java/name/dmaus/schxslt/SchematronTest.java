@@ -95,6 +95,15 @@ public class SchematronTest
     }
 
     @Test
+    public void testTransformerFactory () throws Exception
+    {
+        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "always-valid")
+
+        Result result = schematron.validate(getResourceAsStream(simpleSchema10));
+        assertTrue(result.isValid());
+    }
+
+    @Test
     public void extParamForXSLT10 () throws Exception
     {
         Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "external-param");
