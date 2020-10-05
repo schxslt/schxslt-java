@@ -94,7 +94,7 @@
     <dependency>
       <groupId>name.dmaus.schxslt</groupId>
       <artifactId>schxslt</artifactId>
-      <version>1.4.7</version>
+      <version>1.5.2</version>
       <scope>runtime</scope>
     </dependency>
     <!-- Unit tests -->
