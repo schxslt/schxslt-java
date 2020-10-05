@@ -24,23 +24,22 @@
 
 package name.dmaus.schxslt;
 
+import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
-import javax.xml.transform.stream.StreamSource;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 
-/**
- * This default resolver finds xslt's in the schxslt jar on the classpath. If
- * desired, you can use your own resolver.
- *
- * @see Schematron#withResolver(URIResolver)
- */
-final class Resolver implements URIResolver
+import javax.xml.transform.stream.StreamSource;
+
+class Resolver implements URIResolver
 {
     private final org.xmlresolver.Resolver resolver = new org.xmlresolver.Resolver();
+
+    Resolver ()
+    {}
 
     public Source resolve (final String href, final String base) throws TransformerException
     {
