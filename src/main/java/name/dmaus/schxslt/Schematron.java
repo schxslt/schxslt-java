@@ -42,7 +42,7 @@ import java.util.HashMap;
 
 import java.util.List;
 import java.util.ArrayList;
-
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 /**
@@ -70,7 +70,7 @@ public final class Schematron
 
     private TransformerFactory transformerFactory;
 
-    private String[] pipelineSteps;
+    private List<String> pipelineSteps;
 
     private Templates validatesTemplates;
 
@@ -190,7 +190,7 @@ public final class Schematron
             throw new IllegalArgumentException("A transformation pipeline must have a least one step");
         }
         Schematron newSchematron = new Schematron(this);
-        newSchematron.pipelineSteps = steps;
+        newSchematron.pipelineSteps = Arrays.asList(steps);
         return newSchematron;
     }
 
@@ -288,11 +288,11 @@ public final class Schematron
                 switch (queryBinding) {
                 case QUERYBINDING_DEFAULT:
                 case QUERYBINDING_XSLT1:
-                    pipelineSteps = XSLT10STEPS;
+                    pipelineSteps = Arrays.asList(XSLT10STEPS);
                     break;
                 case QUERYBINDING_XSLT2:
                 case QUERYBINDING_XSLT3:
-                    pipelineSteps = XSLT20STEPS;
+                    pipelineSteps = Arrays.asList(XSLT20STEPS);
                     break;
                 default:
                     throw new SchematronException("Unsupported query language: " + queryBinding);
@@ -329,13 +329,13 @@ public final class Schematron
         return (Document)result.getNode();
     }
 
-    private Transformer[] createPipeline (final String[] steps) throws TransformerException
+    private Transformer[] createPipeline (final List<String> steps) throws TransformerException
     {
         final URIResolver resolver = transformerFactory.getURIResolver();
         final List<Transformer> templates = new ArrayList<Transformer>();
 
-        for (int i = 0; i < steps.length; i++) {
-            final Source source = resolver.resolve(steps[i], null);
+        for (String step : steps) {
+            final Source source = resolver.resolve(step, null);
             final Transformer transformer = transformerFactory.newTransformer(source);
             for (Map.Entry<String, Object> param : options.entrySet()) {
                 transformer.setParameter(param.getKey(), param.getValue());
