@@ -90,16 +90,17 @@ public final class Schematron
     }
 
     /**
-     * Bottleneck constructor, Source may not be null
-     * @param schematron may not be null
-     * @param phase
-     * @param transformerFactory the transformerFactory to use, possibly with custom URIResolver
-     * @param options
+     * Bottleneck constructor, Source may not be null.
+     *
+     * @param schematron May not be null
+     * @param phase Validation phase
+     * @param transformerFactory TransformerFactory to use, possibly with custom URIResolver
+     * @param options Compiler options
      */
     public Schematron (final Source schematron, final String phase, final TransformerFactory transformerFactory,
                        final Map<String, Object> options)
     {
-        if (schematron==null) {
+        if (schematron == null) {
             throw new IllegalArgumentException("Source may not be null");
         }
         if (transformerFactory == null) {
@@ -108,7 +109,7 @@ public final class Schematron
         } else {
             this.transformerFactory = transformerFactory;
             // resolver may be null
-            if (transformerFactory.getURIResolver()==null) {
+            if (transformerFactory.getURIResolver() == null) {
                 transformerFactory.setURIResolver(new Resolver());
             }
         }

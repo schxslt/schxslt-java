@@ -34,12 +34,12 @@ import javax.xml.transform.URIResolver;
 
 import javax.xml.transform.stream.StreamSource;
 
-class Resolver implements URIResolver
+/**
+ * Implementation that locates stylesheets in a JAR-file.
+ */
+final class Resolver implements URIResolver
 {
     private final org.xmlresolver.Resolver resolver = new org.xmlresolver.Resolver();
-
-    Resolver ()
-    {}
 
     public Source resolve (final String href, final String base) throws TransformerException
     {
