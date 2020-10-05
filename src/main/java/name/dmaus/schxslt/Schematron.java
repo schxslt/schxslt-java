@@ -280,7 +280,6 @@ public final class Schematron
     private Document compile () throws SchematronException
     {
         try {
-            Transformer[] pipeline;
 
             if (pipelineSteps == null) {
 
@@ -300,7 +299,7 @@ public final class Schematron
                 LOGGER.info(String.format("Query binding %s found, using %s", queryBinding, String.join(", ", pipelineSteps)));
             }
 
-            pipeline = createPipeline(pipelineSteps);
+            List<Transformer> pipeline = createPipeline(pipelineSteps);
 
             String systemId = schematron.getDocumentURI();
             DOMSource schemaSource = new DOMSource(schematron, systemId);
@@ -315,21 +314,21 @@ public final class Schematron
         }
     }
 
-    private Document applyPipeline (final Transformer[] steps, final Source document) throws TransformerException
+    private Document applyPipeline (final List<Transformer> steps, final Source document) throws TransformerException
     {
         DOMResult result = null;
         Source source = document;
 
-        for (int i = 0; i < steps.length; i++) {
+        for (Transformer transformer : steps) {
             result = new DOMResult();
-            steps[i].transform(source, result);
+            transformer.transform(source, result);
             source = new DOMSource(result.getNode(), source.getSystemId());
         }
 
         return (Document)result.getNode();
     }
 
-    private Transformer[] createPipeline (final List<String> steps) throws TransformerException
+    private List<Transformer> createPipeline (final List<String> steps) throws TransformerException
     {
         final URIResolver resolver = transformerFactory.getURIResolver();
         final List<Transformer> templates = new ArrayList<Transformer>();
@@ -343,6 +342,6 @@ public final class Schematron
             templates.add(transformer);
         }
 
-        return templates.toArray(new Transformer[templates.size()]);
+        return templates;
     }
 }
