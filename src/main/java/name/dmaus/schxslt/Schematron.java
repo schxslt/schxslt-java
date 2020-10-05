@@ -150,6 +150,11 @@ public final class Schematron
         return new Schematron(schematron, phase, transformerFactory, options);
     }
 
+    synchronized public void setPipelineSteps (final List<String> steps)
+    {
+        pipelineSteps = Collections.unmodifiableList(steps);
+    }
+
     /**
      * Return a new instance with the specified compiler options.
      *
