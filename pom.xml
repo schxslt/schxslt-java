@@ -20,9 +20,15 @@
     <developer>
       <id>dmaus</id>
       <name>David Maus</name>
-      <email>schxslt@dmaus.name</email>
+      <email>dmaus@dmaus.name</email>
     </developer>
   </developers>
+
+  <contributors>
+    <contributor>
+      <name>Eduard Drenth</name>
+    </contributor>
+  </contributors>
 
   <scm>
     <url>https://github.com/schxslt/schxslt-java</url>
