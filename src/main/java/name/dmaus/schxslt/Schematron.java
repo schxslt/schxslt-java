@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 by David Maus <dmaus@dmaus.name>
+ * Copyright (C) 2019,2020 by David Maus <dmaus@dmaus.name>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
