@@ -287,25 +287,27 @@ public final class Schematron
     {
         try {
 
-            if (pipelineSteps == null) {
+            synchronized (this) {
+                if (pipelineSteps == null) {
 
-                String queryBinding = schematron.getDocumentElement().getAttribute("queryBinding").toLowerCase();
-                switch (queryBinding) {
-                case QUERYBINDING_DEFAULT:
-                case QUERYBINDING_XSLT1:
-                    pipelineSteps = Arrays.asList(XSLT10STEPS);
-                    break;
-                case QUERYBINDING_XSLT2:
-                case QUERYBINDING_XSLT3:
-                    pipelineSteps = Arrays.asList(XSLT20STEPS);
-                    break;
-                default:
-                    throw new SchematronException("Unsupported query language: " + queryBinding);
+                    String queryBinding = schematron.getDocumentElement().getAttribute("queryBinding").toLowerCase();
+                    switch (queryBinding) {
+                    case QUERYBINDING_DEFAULT:
+                    case QUERYBINDING_XSLT1:
+                        pipelineSteps = Arrays.asList(XSLT10STEPS);
+                        break;
+                    case QUERYBINDING_XSLT2:
+                    case QUERYBINDING_XSLT3:
+                        pipelineSteps = Arrays.asList(XSLT20STEPS);
+                        break;
+                    default:
+                        throw new SchematronException("Unsupported query language: " + queryBinding);
+                    }
+                    LOGGER.info(String.format("Query binding %s found, using %s", queryBinding, String.join(", ", pipelineSteps)));
                 }
-                LOGGER.info(String.format("Query binding %s found, using %s", queryBinding, String.join(", ", pipelineSteps)));
             }
 
-            List<Transformer> pipeline = createPipeline(pipelineSteps);
+            List<Transformer> pipeline = createPipeline();
 
             String systemId = schematron.getDocumentURI();
             DOMSource schemaSource = new DOMSource(schematron, systemId);
@@ -334,12 +336,12 @@ public final class Schematron
         return (Document)result.getNode();
     }
 
-    private List<Transformer> createPipeline (final List<String> steps) throws TransformerException
+    synchronized private List<Transformer> createPipeline () throws TransformerException
     {
         final URIResolver resolver = transformerFactory.getURIResolver();
         final List<Transformer> templates = new ArrayList<Transformer>();
 
-        for (String step : steps) {
+        for (String step : pipelineSteps) {
             final Source source = resolver.resolve(step, null);
             final Transformer transformer = transformerFactory.newTransformer(source);
             for (Map.Entry<String, Object> param : options.entrySet()) {
