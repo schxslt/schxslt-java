@@ -155,7 +155,7 @@ public final class Schematron
         return new Schematron(schematron, phase, transformerFactory, options);
     }
 
-    synchronized public void setPipelineSteps (final List<String> steps)
+    public synchronized void setPipelineSteps (final List<String> steps)
     {
         pipelineSteps = Collections.unmodifiableList(steps);
     }
@@ -265,12 +265,12 @@ public final class Schematron
         return compile();
     }
 
-    synchronized private void setTransformerFactory (final TransformerFactory transformerFactory)
+    private synchronized void setTransformerFactory (final TransformerFactory transformerFactory)
     {
         this.transformerFactory = transformerFactory;
     }
 
-    synchronized private Transformer createTransformer () throws TransformerException, SchematronException
+    private synchronized Transformer createTransformer () throws TransformerException, SchematronException
     {
         if (validatesTemplates == null) {
             validatesTemplates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
@@ -278,7 +278,7 @@ public final class Schematron
         return validatesTemplates.newTransformer();
     }
 
-    synchronized private Document loadSchematron (final Source source)
+    private synchronized Document loadSchematron (final Source source)
     {
         String systemId = source.getSystemId();
 
@@ -349,7 +349,7 @@ public final class Schematron
         return (Document)result.getNode();
     }
 
-    synchronized private List<Transformer> createPipeline () throws TransformerException
+    private synchronized List<Transformer> createPipeline () throws TransformerException
     {
         final URIResolver resolver = transformerFactory.getURIResolver();
         final List<Transformer> templates = new ArrayList<Transformer>();
