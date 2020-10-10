@@ -233,12 +233,7 @@ public final class Schematron
     public Result validate (final Source document, final Map<String, Object> parameters) throws SchematronException
     {
         try {
-            synchronized (this) {
-                if (validatesTemplates == null) {
-                    validatesTemplates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
-                }
-            }
-            Transformer validation = validatesTemplates.newTransformer();
+            Transformer validation = createTransformer();
             if (parameters != null) {
                 for (Map.Entry<String, Object> param : parameters.entrySet()) {
                     validation.setParameter(param.getKey(), param.getValue());
@@ -265,6 +260,14 @@ public final class Schematron
     public Document getValidationStylesheet () throws SchematronException
     {
         return compile();
+    }
+
+    synchronized private Transformer createTransformer () throws TransformerException, SchematronException
+    {
+        if (validatesTemplates == null) {
+            validatesTemplates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
+        }
+        return validatesTemplates.newTransformer();
     }
 
     private Document loadSchematron (final Source source)
