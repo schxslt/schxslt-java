@@ -198,7 +198,7 @@ public final class Schematron
             throw new IllegalArgumentException("A transformation pipeline must have a least one step");
         }
         Schematron newSchematron = new Schematron(this);
-        newSchematron.pipelineSteps = Collections.unmodifiableList(Arrays.asList(steps));
+        newSchematron.setPipelineSteps(Arrays.asList(steps));
         return newSchematron;
     }
 
