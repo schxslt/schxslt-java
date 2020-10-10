@@ -71,10 +71,13 @@ public final class Schematron
 
     private Map<String, Object> options = new HashMap<String, Object>();
 
+    @GuardedBy("this")
     private TransformerFactory transformerFactory;
 
-    @GuardedBy("this") private List<String> pipelineSteps;
+    @GuardedBy("this")
+    private List<String> pipelineSteps;
 
+    @GuardedBy("this")
     private Templates validatesTemplates;
 
     public Schematron (final Source schematron)
