@@ -46,6 +46,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Logger;
 
+import net.jcip.annotations.GuardedBy;
+
 /**
  * Main entry point for Schematron validation.
  *
@@ -71,7 +73,7 @@ public final class Schematron
 
     private TransformerFactory transformerFactory;
 
-    private List<String> pipelineSteps;
+    @GuardedBy("this") private List<String> pipelineSteps;
 
     private Templates validatesTemplates;
 
