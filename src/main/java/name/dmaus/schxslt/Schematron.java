@@ -181,7 +181,7 @@ public final class Schematron
     @Deprecated public Schematron withTransformerFactory (final TransformerFactory factory)
     {
         Schematron newSchematron = new Schematron(this);
-        newSchematron.transformerFactory = factory;
+        newSchematron.setTransformerFactory(factory);
         return newSchematron;
     }
 
@@ -260,6 +260,11 @@ public final class Schematron
     public Document getValidationStylesheet () throws SchematronException
     {
         return compile();
+    }
+
+    synchronized private void setTransformerFactory (final TransformerFactory transformerFactory)
+    {
+        this.transformerFactory = transformerFactory;
     }
 
     synchronized private Transformer createTransformer () throws TransformerException, SchematronException
