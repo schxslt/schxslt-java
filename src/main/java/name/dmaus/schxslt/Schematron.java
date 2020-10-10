@@ -231,8 +231,8 @@ public final class Schematron
     public Result validate (final Source document, final Map<String, Object> parameters) throws SchematronException
     {
         try {
-            if (validatesTemplates == null) {
-                synchronized (this) {
+            synchronized (this) {
+                if (validatesTemplates == null) {
                     validatesTemplates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
                 }
             }
