@@ -278,7 +278,7 @@ public final class Schematron
         return validatesTemplates.newTransformer();
     }
 
-    private Document loadSchematron (final Source source)
+    synchronized private Document loadSchematron (final Source source)
     {
         String systemId = source.getSystemId();
 
