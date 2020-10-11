@@ -267,14 +267,6 @@ public final class Schematron
         this.transformerFactory = transformerFactory;
     }
 
-    private synchronized Transformer createTransformer () throws TransformerException, SchematronException
-    {
-        if (validatesTemplates == null) {
-            validatesTemplates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
-        }
-        return validatesTemplates.newTransformer();
-    }
-
     private synchronized Document loadSchematron (final Source source)
     {
         String systemId = source.getSystemId();
