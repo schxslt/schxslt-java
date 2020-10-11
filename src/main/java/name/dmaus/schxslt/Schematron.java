@@ -235,22 +235,7 @@ public final class Schematron
      */
     public Result validate (final Source document, final Map<String, Object> parameters) throws SchematronException
     {
-        try {
-            Transformer validation = createTransformer();
-            if (parameters != null) {
-                for (Map.Entry<String, Object> param : parameters.entrySet()) {
-                    validation.setParameter(param.getKey(), param.getValue());
-                }
-            }
-
-            DOMResult result = new DOMResult();
-            validation.transform(document, result);
-
-            return new Result((Document)result.getNode());
-
-        } catch (TransformerException e) {
-            throw new SchematronException("Error running transformation stylesheet", e);
-        }
+        return createValidator().validate(document, parameters);
     }
 
     /**
@@ -263,6 +248,18 @@ public final class Schematron
     public Document getValidationStylesheet () throws SchematronException
     {
         return compile();
+    }
+
+    public synchronized SchematronValidator createValidator () throws SchematronException
+    {
+        try {
+            if (validatesTemplates == null) {
+                validatesTemplates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
+            }
+            return new SchematronValidator(validatesTemplates);
+        } catch (TransformerException e) {
+            throw new SchematronException("Error compiling validation stylesheet", e);
+        }
     }
 
     private synchronized void setTransformerFactory (final TransformerFactory transformerFactory)
