@@ -80,6 +80,9 @@ public final class Schematron
     @GuardedBy("this")
     private Templates validatesTemplates;
 
+    @GuardedBy("validator")
+    private SchematronValidator validator;
+
     public Schematron (final Source schematron)
     {
         this(schematron, null, null);
@@ -235,7 +238,12 @@ public final class Schematron
      */
     public Result validate (final Source document, final Map<String, Object> parameters) throws SchematronException
     {
-        return createValidator().validate(document, parameters);
+        synchronized (validator) {
+            if (validator == null) {
+                validator = createValidator();
+            }
+        }
+        return validator.validate(document, parameters);
     }
 
     /**
