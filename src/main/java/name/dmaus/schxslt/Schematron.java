@@ -80,7 +80,7 @@ public final class Schematron
     @GuardedBy("this")
     private Templates validatesTemplates;
 
-    @GuardedBy("validator")
+    @GuardedBy("this")
     private SchematronValidator validator;
 
     public Schematron (final Source schematron)
@@ -238,7 +238,7 @@ public final class Schematron
      */
     public Result validate (final Source document, final Map<String, Object> parameters) throws SchematronException
     {
-        synchronized (validator) {
+        synchronized (this) {
             if (validator == null) {
                 validator = createValidator();
             }
