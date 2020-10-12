@@ -72,7 +72,7 @@ public final class Schematron
 
     private final Document styleSheet;
 
-    private Map<String, Object> options = new HashMap<String, Object>();
+    private final Map<String, Object> options = new HashMap<String, Object>();
 
     @GuardedBy("this")
     private TransformerFactory transformerFactory;
