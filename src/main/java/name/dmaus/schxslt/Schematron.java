@@ -45,12 +45,15 @@ import java.util.logging.Logger;
 
 import java.nio.file.Paths;
 
+import net.jcip.annotations.NotThreadSafe;
+
 /**
  * Main entry point for Schematron validation.
  *
  * The class uses a functional interface to parametrize an instance. I.e. a call to a method starting with 'with'
  * creates a new parametrized instance.
  */
+@NotThreadSafe
 public final class Schematron
 {
     static final Logger log = Logger.getLogger(Schematron.class.getName());

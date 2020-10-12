@@ -31,9 +31,12 @@ import org.w3c.dom.NodeList;
 import java.util.List;
 import java.util.ArrayList;
 
+import net.jcip.annotations.NotThreadSafe;
+
 /**
  * Schematron validation result.
  */
+@NotThreadSafe
 public final class Result
 {
     static final String SVRL = "http://purl.oclc.org/dsdl/svrl";

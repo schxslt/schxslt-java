@@ -34,6 +34,9 @@ import javax.xml.transform.URIResolver;
 
 import javax.xml.transform.stream.StreamSource;
 
+import net.jcip.annotations.NotThreadSafe;
+
+@NotThreadSafe
 class Resolver implements URIResolver
 {
     final org.xmlresolver.Resolver resolver = new org.xmlresolver.Resolver();

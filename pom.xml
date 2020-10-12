@@ -97,6 +97,11 @@
       <version>1.5.2</version>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>net.jcip</groupId>
+      <artifactId>jcip-annotations</artifactId>
+      <version>1.0</version>
+    </dependency>
     <!-- Unit tests -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
