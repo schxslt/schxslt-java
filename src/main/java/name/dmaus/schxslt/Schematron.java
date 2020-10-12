@@ -155,7 +155,7 @@ public final class Schematron
         return new Schematron(schematron, phase, transformerFactory, options);
     }
 
-    private synchronized void setPipelineSteps (final List<String> steps)
+    private void setPipelineSteps (final List<String> steps)
     {
         pipelineSteps = Collections.unmodifiableList(steps);
     }
@@ -250,12 +250,14 @@ public final class Schematron
         return compile();
     }
 
-    public synchronized SchematronValidator createValidator () throws SchematronException
+    public SchematronValidator createValidator () throws SchematronException
     {
         try {
-            if (validator == null) {
-                Templates templates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
-                validator = new SchematronValidator(templates);
+            synchronized (transformerFactory) {
+                if (validator == null) {
+                    Templates templates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
+                    validator = new SchematronValidator(templates);
+                }
             }
             return validator;
         } catch (TransformerException e) {
@@ -263,7 +265,7 @@ public final class Schematron
         }
     }
 
-    private synchronized void setTransformerFactory (final TransformerFactory transformerFactory)
+    private void setTransformerFactory (final TransformerFactory transformerFactory)
     {
         this.transformerFactory = transformerFactory;
     }
