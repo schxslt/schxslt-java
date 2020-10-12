@@ -49,42 +49,12 @@ public class SchematronTest
     }
 
     @Test
-    public void functionalConstructorWithOptions ()
-    {
-        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "always-valid");
-        assertNotEquals(schematron, schematron.withOptions(new HashMap<String,Object>()));
-    }
-
-    @Test
     public void functionalConstructorWithOptionsKeepsPhase () throws Exception
     {
-        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema20WithPhase), "phase");
-        Result result = schematron.withOptions(new HashMap<String,Object>()).validate(getResourceAsStream(simpleSchema10));
+        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema20WithPhase), "phase", null, new HashMap<String,Object>());
+        Result result = schematron.validate(getResourceAsStream(simpleSchema10));
         assertTrue(result.isValid());
     }
-
-    @Test
-    public void functionalConstructorWithTransformerFactory ()
-    {
-        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "always-valid");
-        assertNotEquals(schematron, schematron.withTransformerFactory(TransformerFactory.newInstance()));
-    }
-
-    @Test
-    public void functionalConstructorWithPipelineSteps ()
-    {
-        String[] steps = {"foo"};
-        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "always-valid");
-        assertNotEquals(schematron, schematron.withPipelineSteps(steps));
-    }
-
-    @Test
-    public void functionalConstructorWithPhase ()
-    {
-        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "always-valid");
-        assertNotEquals(schematron, schematron.withPhase("phase"));
-    }
-
 
     @Test
     public void newSchematronForXSLT10 () throws Exception

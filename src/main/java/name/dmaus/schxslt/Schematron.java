@@ -26,6 +26,7 @@ package name.dmaus.schxslt;
 
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerException;
 
@@ -69,6 +70,8 @@ public final class Schematron
 
     private final Document schematron;
 
+    private final Document styleSheet;
+
     private Map<String, Object> options = new HashMap<String, Object>();
 
     @GuardedBy("this")
@@ -80,18 +83,15 @@ public final class Schematron
     @GuardedBy("validator")
     private SchematronValidator validator;
 
-    public Schematron (final Source schematron)
-    {
+    public Schematron (final Source schematron) throws SchematronException {
         this(schematron, null, null);
     }
 
-    public Schematron (final Source schematron, final String phase)
-    {
+    public Schematron (final Source schematron, final String phase) throws SchematronException {
         this(schematron, phase, null);
     }
 
-    public Schematron (final Source schematron, final String phase, final TransformerFactory transformerFactory)
-    {
+    public Schematron (final Source schematron, final String phase, final TransformerFactory transformerFactory) throws SchematronException {
         this(schematron, phase, transformerFactory, null);
     }
 
@@ -102,10 +102,10 @@ public final class Schematron
      * @param phase Validation phase
      * @param transformerFactory TransformerFactory to use, possibly with custom URIResolver
      * @param options Compiler options
+     * @throws SchematronException If compiling the validation stylesheet fails
      */
     public Schematron (final Source schematron, final String phase, final TransformerFactory transformerFactory,
-                       final Map<String, Object> options)
-    {
+                       final Map<String, Object> options) throws SchematronException {
         if (schematron == null) {
             throw new IllegalArgumentException("Source may not be null");
         }
@@ -126,97 +126,24 @@ public final class Schematron
             this.options.put(PHASE, phase);
         }
         this.schematron = loadSchematron(schematron);
+        this.styleSheet=compile();
     }
 
-    private Schematron (final Schematron orig)
-    {
-        this.schematron = orig.schematron;
-        this.options = orig.options;
-        this.transformerFactory = orig.transformerFactory;
-    }
 
-    public static Schematron newInstance (final Source schematron)
-    {
+    public static Schematron newInstance (final Source schematron) throws SchematronException {
         return new Schematron(schematron);
     }
 
-    public static Schematron newInstance (final Source schematron, final String phase)
-    {
+    public static Schematron newInstance (final Source schematron, final String phase) throws SchematronException {
         return new Schematron(schematron, phase);
     }
 
-    public static Schematron newInstance (final Source schematron, final String phase, final TransformerFactory transformerFactory)
-    {
+    public static Schematron newInstance (final Source schematron, final String phase, final TransformerFactory transformerFactory) throws SchematronException {
         return new Schematron(schematron, phase, transformerFactory);
     }
 
-    public static Schematron newInstance (final Source schematron, final String phase, final TransformerFactory transformerFactory, final Map<String, Object> options)
-    {
+    public static Schematron newInstance (final Source schematron, final String phase, final TransformerFactory transformerFactory, final Map<String, Object> options) throws SchematronException {
         return new Schematron(schematron, phase, transformerFactory, options);
-    }
-
-    private void setPipelineSteps (final List<String> steps)
-    {
-        pipelineSteps = Collections.unmodifiableList(steps);
-    }
-
-    /**
-     * Return a new instance with the specified compiler options.
-     *
-     * @param  opts Compiler options
-     * @return Parametrized instance
-     * @deprecated use constructors instead
-     */
-    @Deprecated public Schematron withOptions (final Map<String, Object> opts)
-    {
-        Schematron newSchematron = new Schematron(this);
-        newSchematron.options.putAll(opts);
-        return newSchematron;
-    }
-
-    /**
-     * Return a new instance with the specified transformer factory.
-     *
-     * @param  factory Transformer factory
-     * @return Parametrized instance
-     * @deprecated use constructors instead
-     */
-    @Deprecated public Schematron withTransformerFactory (final TransformerFactory factory)
-    {
-        Schematron newSchematron = new Schematron(this);
-        newSchematron.setTransformerFactory(factory);
-        return newSchematron;
-    }
-
-    /**
-     * Returns a new instance for the specified compilation pipeline .
-     *
-     * @param  steps Stylesheets used to create the validation stylesheet
-     * @return Parametrized instance
-     * @deprecated use constructors instead
-     */
-    @Deprecated public Schematron withPipelineSteps (final String[] steps)
-    {
-        if (steps.length == 0) {
-            throw new IllegalArgumentException("A transformation pipeline must have a least one step");
-        }
-        Schematron newSchematron = new Schematron(this);
-        newSchematron.setPipelineSteps(Arrays.asList(steps));
-        return newSchematron;
-    }
-
-    /**
-     * Returns a new instance for the specified validation phase.
-     *
-     * @param  phase Validation phase
-     * @return Parametrized instance
-     * @deprecated use constructors instead
-     */
-    @Deprecated public Schematron withPhase (final String phase)
-    {
-        Schematron newSchematron = new Schematron(this);
-        newSchematron.options.put(PHASE, phase);
-        return newSchematron;
     }
 
     public Result validate (final Source document) throws SchematronException
@@ -239,15 +166,14 @@ public final class Schematron
     }
 
     /**
-     * Compiles and returns the validation stylesheet.
+     * Returns the validation stylesheet.
      *
      * @return The compiled validation stylesheet
      *
-     * @throws SchematronException If compiling the validation stylesheet fails
      */
-    public Document getValidationStylesheet () throws SchematronException
+    public Document getValidationStylesheet ()
     {
-        return compile();
+        return styleSheet;
     }
 
     public SchematronValidator createValidator () throws SchematronException
@@ -263,11 +189,6 @@ public final class Schematron
         } catch (TransformerException e) {
             throw new SchematronException("Error compiling validation stylesheet", e);
         }
-    }
-
-    private void setTransformerFactory (final TransformerFactory transformerFactory)
-    {
-        this.transformerFactory = transformerFactory;
     }
 
     private Document loadSchematron (final Source source)
@@ -292,24 +213,22 @@ public final class Schematron
     {
         try {
 
-            synchronized (this) {
-                if (pipelineSteps == null) {
+            if (pipelineSteps == null) {
 
-                    String queryBinding = schematron.getDocumentElement().getAttribute("queryBinding").toLowerCase();
-                    switch (queryBinding) {
-                    case QUERYBINDING_DEFAULT:
-                    case QUERYBINDING_XSLT1:
-                        pipelineSteps = Arrays.asList(XSLT10STEPS);
-                        break;
-                    case QUERYBINDING_XSLT2:
-                    case QUERYBINDING_XSLT3:
-                        pipelineSteps = Arrays.asList(XSLT20STEPS);
-                        break;
-                    default:
-                        throw new SchematronException("Unsupported query language: " + queryBinding);
-                    }
-                    LOGGER.info(String.format("Query binding %s found, using %s", queryBinding, String.join(", ", pipelineSteps)));
+                String queryBinding = schematron.getDocumentElement().getAttribute("queryBinding").toLowerCase();
+                switch (queryBinding) {
+                case QUERYBINDING_DEFAULT:
+                case QUERYBINDING_XSLT1:
+                    pipelineSteps = Arrays.asList(XSLT10STEPS);
+                    break;
+                case QUERYBINDING_XSLT2:
+                case QUERYBINDING_XSLT3:
+                    pipelineSteps = Arrays.asList(XSLT20STEPS);
+                    break;
+                default:
+                    throw new SchematronException("Unsupported query language: " + queryBinding);
                 }
+                LOGGER.info(String.format("Query binding %s found, using %s", queryBinding, String.join(", ", pipelineSteps)));
             }
 
             List<Transformer> pipeline = createPipeline();
@@ -341,7 +260,7 @@ public final class Schematron
         return (Document)result.getNode();
     }
 
-    private synchronized List<Transformer> createPipeline () throws TransformerException
+    private List<Transformer> createPipeline () throws TransformerException
     {
         final URIResolver resolver = transformerFactory.getURIResolver();
         final List<Transformer> templates = new ArrayList<Transformer>();
