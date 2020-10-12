@@ -238,10 +238,8 @@ public final class Schematron
      */
     public Result validate (final Source document, final Map<String, Object> parameters) throws SchematronException
     {
-        synchronized (validator) {
-            if (validator == null) {
-                validator = createValidator();
-            }
+        if (validator == null) {
+            validator = createValidator();
         }
         return validator.validate(document, parameters);
     }
