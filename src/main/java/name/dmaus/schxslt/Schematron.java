@@ -275,7 +275,7 @@ public final class Schematron
         this.transformerFactory = transformerFactory;
     }
 
-    private synchronized Document loadSchematron (final Source source)
+    private Document loadSchematron (final Source source)
     {
         String systemId = source.getSystemId();
 
