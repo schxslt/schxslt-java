@@ -77,6 +77,9 @@ public final class Schematron
     @GuardedBy("this")
     private List<String> pipelineSteps;
 
+    @GuardedBy("this")
+    private Templates validatesTemplates;
+
     @GuardedBy("validator")
     private SchematronValidator validator;
 
@@ -235,7 +238,10 @@ public final class Schematron
      */
     public Result validate (final Source document, final Map<String, Object> parameters) throws SchematronException
     {
-        return createValidator().validate(document, parameters);
+        if (validator == null) {
+            validator = createValidator();
+        }
+        return validator.validate(document, parameters);
     }
 
     /**
@@ -250,16 +256,13 @@ public final class Schematron
         return compile();
     }
 
-    public SchematronValidator createValidator () throws SchematronException
+    public synchronized SchematronValidator createValidator () throws SchematronException
     {
         try {
-            synchronized (transformerFactory) {
-                if (validator == null) {
-                    Templates templates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
-                    validator = new SchematronValidator(templates);
-                }
+            if (validatesTemplates == null) {
+                validatesTemplates = transformerFactory.newTemplates(new DOMSource(getValidationStylesheet()));
             }
-            return validator;
+            return new SchematronValidator(validatesTemplates);
         } catch (TransformerException e) {
             throw new SchematronException("Error compiling validation stylesheet", e);
         }
