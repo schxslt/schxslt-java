@@ -155,7 +155,7 @@ public final class Schematron
         return new Schematron(schematron, phase, transformerFactory, options);
     }
 
-    public synchronized void setPipelineSteps (final List<String> steps)
+    private synchronized void setPipelineSteps (final List<String> steps)
     {
         pipelineSteps = Collections.unmodifiableList(steps);
     }
