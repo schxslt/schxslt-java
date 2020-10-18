@@ -40,11 +40,11 @@ import net.jcip.annotations.ThreadSafe;
  * Validates a document with a compiled Schematron.
  */
 @ThreadSafe
-final class SchematronValidator
+final class Validator
 {
     private final Templates schema;
 
-    SchematronValidator (final Templates schema)
+    Validator (final Templates schema)
     {
         this.schema = schema;
     }
