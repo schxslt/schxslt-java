@@ -128,23 +128,6 @@ public final class Schematron
         this.styleSheet=compile();
     }
 
-
-    public static Schematron newInstance (final Source schematron) throws SchematronException {
-        return new Schematron(schematron);
-    }
-
-    public static Schematron newInstance (final Source schematron, final String phase) throws SchematronException {
-        return new Schematron(schematron, phase);
-    }
-
-    public static Schematron newInstance (final Source schematron, final String phase, final TransformerFactory transformerFactory) throws SchematronException {
-        return new Schematron(schematron, phase, transformerFactory);
-    }
-
-    public static Schematron newInstance (final Source schematron, final String phase, final TransformerFactory transformerFactory, final Map<String, Object> options) throws SchematronException {
-        return new Schematron(schematron, phase, transformerFactory, options);
-    }
-
     public Result validate (final Source document) throws SchematronException
     {
         return validate(document, null);
