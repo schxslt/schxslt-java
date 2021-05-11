@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 
 import java.util.HashMap;
