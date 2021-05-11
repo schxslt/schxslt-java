@@ -80,7 +80,7 @@ public final class Result
         return messages.isEmpty();
     }
 
-    void readMessages (final NodeList nodes)
+    private void readMessages (final NodeList nodes)
     {
         for (int i = 0; i < nodes.getLength(); i++) {
             Element element = (Element)nodes.item(i);
