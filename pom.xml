@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>name.dmaus.schxslt</groupId>
   <artifactId>java</artifactId>
-  <version>3.0</version>
+  <version>3.1-SNAPSHOT</version>
 
   <name>SchXslt Java</name>
   <description>Java classes for Schematron validation with SchXslt</description>
@@ -93,12 +93,12 @@
     <dependency>
       <groupId>org.xmlresolver</groupId>
       <artifactId>xmlresolver</artifactId>
-      <version>2.1.0</version>
+      <version>3.1.0</version>
     </dependency>
     <dependency>
       <groupId>name.dmaus.schxslt</groupId>
       <artifactId>schxslt</artifactId>
-      <version>1.7.2</version>
+      <version>1.8.2</version>
       <scope>runtime</scope>
     </dependency>
     <!-- https://mvnrepository.com/artifact/net.jcip/jcip-annotations -->
@@ -111,13 +111,13 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.7.0</version>
+      <version>5.8.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.7.0</version>
+      <version>5.8.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
