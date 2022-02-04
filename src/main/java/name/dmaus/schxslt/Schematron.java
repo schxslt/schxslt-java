@@ -81,7 +81,7 @@ public final class Schematron
 
         Document stylesheet = compile(factory, schematron, phase, options);
         try {
-            Templates templates = factory.newTemplates(new DOMSource(stylesheet));
+            Templates templates = factory.newTemplates(new DOMSource(stylesheet, stylesheet.getDocumentURI()));
             validator = new Validator(templates);
         } catch (TransformerException e) {
             throw new SchematronException("Unable to create Validator instance", e);
