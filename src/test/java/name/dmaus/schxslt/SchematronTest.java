@@ -78,12 +78,12 @@ public class SchematronTest
     @Test
     public void extParamForXSLT20 () throws Exception
     {
-        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "external-param");
+        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema20), "external-param");
 
         HashMap<String,Object> map = new HashMap<String,Object>();
         map.put("external-param", new Integer(1));
 
-        Result result = schematron.validate(getResourceAsStream(simpleSchema10), map);
+        Result result = schematron.validate(getResourceAsStream(simpleSchema20), map);
         assertTrue(result.isValid());
     }
 
@@ -92,7 +92,7 @@ public class SchematronTest
     public void newSchematronForXSLT20 () throws Exception
     {
         Schematron schematron = new Schematron(getResourceAsStream(simpleSchema20), "always-valid");
-        Result result = schematron.validate(getResourceAsStream(simpleSchema10));
+        Result result = schematron.validate(getResourceAsStream(simpleSchema20));
         assertTrue(result.isValid());
     }
 
