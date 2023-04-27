@@ -163,7 +163,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.1.1</version>
+        <version>3.4.2</version>
       </plugin>
       <!-- Required to JUnit 5 working -->
       <!-- Cf. https://dzone.com/articles/why-your-junit-5-tests-are-not-running-under-maven -->
