@@ -93,7 +93,7 @@
     <dependency>
       <groupId>org.xmlresolver</groupId>
       <artifactId>xmlresolver</artifactId>
-      <version>2.1.1</version>
+      <version>5.1.2</version>
     </dependency>
     <dependency>
       <groupId>name.dmaus.schxslt</groupId>
