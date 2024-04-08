@@ -28,6 +28,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -56,7 +57,7 @@ public final class Result
      */
     public List<String> getValidationMessages ()
     {
-        return messages;
+        return Collections.unmodifiableList(messages);
     }
 
     /**
@@ -66,9 +67,8 @@ public final class Result
      */
     public Document getValidationReport ()
     {
-        return report;
+        return (Document)report.cloneNode(true);
     }
-
 
     /**
      * Returns true if the validated document is valid.
