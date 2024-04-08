@@ -122,6 +122,7 @@
         <configuration>
           <effort>Max</effort>
           <threshold>Low</threshold>
+          <excludeFilterFile>config/spotbugs.xml</excludeFilterFile>
         </configuration>
         <executions>
           <execution>

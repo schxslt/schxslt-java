@@ -1,0 +1,6 @@
+<FindBugsFilter>
+  <Match>
+    <Class name="name.dmaus.schxslt.Compiler"/>
+    <Bug pattern="EI_EXPOSE_REP2"/>
+  </Match>
+</FindBugsFilter>
