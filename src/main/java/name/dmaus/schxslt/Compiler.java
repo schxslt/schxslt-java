@@ -37,7 +37,12 @@ import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.Document;
 
+import name.dmaus.schxslt.adapter.Adapter;
+import name.dmaus.schxslt.adapter.SchXslt;
+
 import net.jcip.annotations.ThreadSafe;
+
+import java.util.Locale;
 
 /**
  * Compile validation stylesheet from a Schematron schema.
@@ -45,14 +50,7 @@ import net.jcip.annotations.ThreadSafe;
 @ThreadSafe
 public final class Compiler
 {
-    private static final String[] XSLT10STEPS = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
-    private static final String[] XSLT20STEPS = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
-
-    private static final String QUERYBINDING_XSLT1 = "xslt";
-    private static final String QUERYBINDING_XSLT2 = "xslt2";
-    private static final String QUERYBINDING_XSLT3 = "xslt3";
-    private static final String QUERYBINDING_DEFAULT = "";
-
+    private final Adapter adapter = new SchXslt();
     private final TransformerFactory transformerFactory;
 
     public Compiler ()
@@ -70,22 +68,8 @@ public final class Compiler
     {
         Document schematron = loadSchematron(schema);
         try {
-            List<Transformer> pipeline;
-            
-            String queryBinding = schematron.getDocumentElement().getAttribute("queryBinding").toLowerCase();
-            switch (queryBinding) {
-            case QUERYBINDING_DEFAULT:
-            case QUERYBINDING_XSLT1:
-                pipeline = createPipeline(XSLT10STEPS, options);
-                break;
-            case QUERYBINDING_XSLT2:
-            case QUERYBINDING_XSLT3:
-                pipeline = createPipeline(XSLT20STEPS, options);
-                break;
-            default:
-                throw new SchematronException("Unsupported query language: " + queryBinding);
-            }
-
+            String queryBinding = schematron.getDocumentElement().getAttribute("queryBinding").toLowerCase(Locale.ROOT);
+            List<Transformer> pipeline = createPipeline(adapter.getTranspilerStylesheets(queryBinding), options);
             String systemId = schematron.getDocumentURI();
             DOMSource schemaSource = new DOMSource(schematron, systemId);
             
