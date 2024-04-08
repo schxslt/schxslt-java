@@ -24,6 +24,8 @@
 
 package name.dmaus.schxslt.adapter;
 
+import java.util.List;
+
 import name.dmaus.schxslt.SchematronException;
 
 /**
@@ -31,5 +33,5 @@ import name.dmaus.schxslt.SchematronException;
  */
 public interface Adapter
 {
-    String[] getTranspilerStylesheets (String queryBinding) throws SchematronException;
+    List<String> getTranspilerStylesheets (String queryBinding) throws SchematronException;
 }

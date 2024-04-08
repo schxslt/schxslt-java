@@ -24,6 +24,8 @@
 
 package name.dmaus.schxslt.adapter;
 
+import java.util.List;
+
 import name.dmaus.schxslt.SchematronException;
 
 /**
@@ -31,10 +33,10 @@ import name.dmaus.schxslt.SchematronException;
  */
 public final class SchXslt implements Adapter
 {
-    private static final String[] XSLT10STEPS = {"/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl"};
-    private static final String[] XSLT20STEPS = {"/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl"};
+    private static final List<String> XSLT10STEPS = List.of("/xslt/1.0/include.xsl", "/xslt/1.0/expand.xsl", "/xslt/1.0/compile-for-svrl.xsl");
+    private static final List<String> XSLT20STEPS = List.of("/xslt/2.0/include.xsl", "/xslt/2.0/expand.xsl", "/xslt/2.0/compile-for-svrl.xsl");
 
-    public String[] getTranspilerStylesheets (final String queryBinding) throws SchematronException
+    public List<String> getTranspilerStylesheets (final String queryBinding) throws SchematronException
     {
         if ("".equals(queryBinding) || "xslt".equals(queryBinding)) {
             return XSLT10STEPS;

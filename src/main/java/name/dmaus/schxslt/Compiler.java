@@ -99,7 +99,7 @@ public final class Compiler
         }
     }
 
-    private List<Transformer> createPipeline (final String[] steps, final Map<String, Object> options) throws TransformerException
+    private List<Transformer> createPipeline (final List<String> steps, final Map<String, Object> options) throws TransformerException
     {
         final Resolver resolver = new Resolver();
         final List<Transformer> templates = new ArrayList<Transformer>();
