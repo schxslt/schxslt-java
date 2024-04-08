@@ -69,7 +69,7 @@ public class SchematronTest
         Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "external-param");
 
         HashMap<String,Object> map = new HashMap<String,Object>();
-        map.put("external-param", new Integer(1));
+        map.put("external-param", Integer.valueOf(1));
 
         Result result = schematron.validate(getResourceAsStream(simpleSchema10), map);
         assertTrue(result.isValid());
@@ -81,7 +81,7 @@ public class SchematronTest
         Schematron schematron = new Schematron(getResourceAsStream(simpleSchema20), "external-param");
 
         HashMap<String,Object> map = new HashMap<String,Object>();
-        map.put("external-param", new Integer(1));
+        map.put("external-param", Integer.valueOf(1));
 
         Result result = schematron.validate(getResourceAsStream(simpleSchema20), map);
         assertTrue(result.isValid());
