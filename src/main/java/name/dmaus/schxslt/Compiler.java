@@ -32,10 +32,13 @@ import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.Document;
+
+import org.xmlresolver.XMLResolver;
 
 import name.dmaus.schxslt.adapter.Adapter;
 import name.dmaus.schxslt.adapter.SchXslt;
@@ -52,11 +55,12 @@ public final class Compiler
 {
     private final Adapter adapter = new SchXslt();
     private final TransformerFactory transformerFactory;
+    private final XMLResolver xmlResolver = new XMLResolver();
 
     public Compiler ()
     {
         transformerFactory = TransformerFactory.newInstance();
-        transformerFactory.setURIResolver(new Resolver());
+        transformerFactory.setURIResolver(xmlResolver.getURIResolver());
     }
 
     public Compiler (final TransformerFactory transformerFactory)
@@ -101,7 +105,7 @@ public final class Compiler
 
     private List<Transformer> createPipeline (final List<String> steps, final Map<String, Object> options) throws TransformerException
     {
-        final Resolver resolver = new Resolver();
+        final URIResolver resolver = xmlResolver.getURIResolver();
         final List<Transformer> templates = new ArrayList<Transformer>();
 
         for (String step : steps) {

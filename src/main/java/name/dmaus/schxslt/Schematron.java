@@ -27,12 +27,13 @@ package name.dmaus.schxslt;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerException;
-
 import javax.xml.transform.Source;
 
 import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.Document;
+
+import org.xmlresolver.XMLResolver;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -75,8 +76,9 @@ public final class Schematron
 
         TransformerFactory factory = transformerFactory;
         if (factory == null) {
+            XMLResolver resolver = new XMLResolver();
             factory = TransformerFactory.newInstance();
-            factory.setURIResolver(new Resolver());
+            factory.setURIResolver(resolver.getURIResolver());
         }
 
         Document stylesheet = compile(factory, schematron, phase, options);

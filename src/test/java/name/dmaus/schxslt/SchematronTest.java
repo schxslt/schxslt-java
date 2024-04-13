@@ -44,7 +44,7 @@ public class SchematronTest
     public static void init ()
     {
         System.setProperty("javax.xml.transform.TransformerFactory", "net.sf.saxon.TransformerFactoryImpl");
-        System.setProperty("xml.catalog.files", SchematronTest.class.getResource("/catalog.xml").toString());
+        System.setProperty("xmlresolver.properties", SchematronTest.class.getResource("/xmlresolver.properties").toString());
     }
 
     @Test
