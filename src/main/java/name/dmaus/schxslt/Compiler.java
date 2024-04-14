@@ -41,7 +41,6 @@ import org.w3c.dom.Document;
 import org.xmlresolver.XMLResolver;
 
 import name.dmaus.schxslt.adapter.Adapter;
-import name.dmaus.schxslt.adapter.SchXslt;
 
 import net.jcip.annotations.ThreadSafe;
 
@@ -53,18 +52,20 @@ import java.util.Locale;
 @ThreadSafe
 public final class Compiler
 {
-    private final Adapter adapter = new SchXslt();
+    private final Adapter adapter;
     private final TransformerFactory transformerFactory;
     private final XMLResolver xmlResolver = new XMLResolver();
 
-    public Compiler ()
+    public Compiler (final Adapter adapter)
     {
-        transformerFactory = TransformerFactory.newInstance();
-        transformerFactory.setURIResolver(xmlResolver.getURIResolver());
+        this.adapter = adapter;
+        this.transformerFactory = TransformerFactory.newInstance();
+        this.transformerFactory.setURIResolver(xmlResolver.getURIResolver());
     }
 
-    public Compiler (final TransformerFactory transformerFactory)
+    public Compiler (final Adapter adapter, final TransformerFactory transformerFactory)
     {
+        this.adapter = adapter;
         this.transformerFactory = transformerFactory;
     }
 

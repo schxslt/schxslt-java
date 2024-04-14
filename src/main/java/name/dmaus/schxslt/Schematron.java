@@ -31,6 +31,8 @@ import javax.xml.transform.Source;
 
 import javax.xml.transform.dom.DOMSource;
 
+import name.dmaus.schxslt.adapter.Adapter;
+
 import org.w3c.dom.Document;
 
 import org.xmlresolver.XMLResolver;
@@ -47,17 +49,18 @@ import net.jcip.annotations.ThreadSafe;
 public final class Schematron
 {
     private Validator validator;
+    private Adapter adapter;
 
-    public Schematron (final Source schematron) throws SchematronException {
-        this(schematron, null, null);
+    public Schematron (final Adapter adapter, final Source schematron) throws SchematronException {
+        this(adapter, schematron, null, null);
     }
 
-    public Schematron (final Source schematron, final String phase) throws SchematronException {
-        this(schematron, phase, null);
+    public Schematron (final Adapter adapter, final Source schematron, final String phase) throws SchematronException {
+        this(adapter, schematron, phase, null);
     }
 
-    public Schematron (final Source schematron, final String phase, final TransformerFactory transformerFactory) throws SchematronException {
-        this(schematron, phase, transformerFactory, null);
+    public Schematron (final Adapter adapter, final Source schematron, final String phase, final TransformerFactory transformerFactory) throws SchematronException {
+        this(adapter, schematron, phase, transformerFactory, null);
     }
 
     /**
@@ -69,7 +72,12 @@ public final class Schematron
      * @param options Compiler options
      * @throws SchematronException If compiling the validation stylesheet fails
      */
-    public Schematron (final Source schematron, final String phase, final TransformerFactory transformerFactory, final Map<String, Object> options) throws SchematronException {
+    public Schematron (final Adapter adapter, final Source schematron, final String phase, final TransformerFactory transformerFactory, final Map<String, Object> options) throws SchematronException {
+        if (adapter == null) {
+            throw new IllegalArgumentException("Adapter may not be null");
+        }
+        this.adapter = adapter;
+        
         if (schematron == null) {
             throw new IllegalArgumentException("Source may not be null");
         }
@@ -111,7 +119,7 @@ public final class Schematron
 
     private Document compile (final TransformerFactory transformerFactory, final Source schema, final String phase, final Map<String, Object> options) throws SchematronException
     {
-        Compiler compiler = new Compiler(transformerFactory);
+        Compiler compiler = new Compiler(adapter, transformerFactory);
         Map<String, Object> compilerOptions = new HashMap<String, Object>();
         if (options != null) {
             compilerOptions.putAll(options);

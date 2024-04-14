@@ -24,6 +24,8 @@
 
 package name.dmaus.schxslt;
 
+import name.dmaus.schxslt.adapter.SchXslt;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +52,7 @@ public class SchematronTest
     @Test
     public void functionalConstructorWithOptionsKeepsPhase () throws Exception
     {
-        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema20WithPhase), "phase", null, new HashMap<String,Object>());
+        Schematron schematron = new Schematron(new SchXslt(), getResourceAsStream(simpleSchema20WithPhase), "phase", null, new HashMap<String,Object>());
         Result result = schematron.validate(getResourceAsStream(simpleSchema10));
         assertTrue(result.isValid());
     }
@@ -58,7 +60,7 @@ public class SchematronTest
     @Test
     public void newSchematronForXSLT10 () throws Exception
     {
-        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "always-valid");
+        Schematron schematron = new Schematron(new SchXslt(), getResourceAsStream(simpleSchema10), "always-valid");
         Result result = schematron.validate(getResourceAsStream(simpleSchema10));
         assertTrue(result.isValid());
     }
@@ -66,7 +68,7 @@ public class SchematronTest
     @Test
     public void extParamForXSLT10 () throws Exception
     {
-        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema10), "external-param");
+        Schematron schematron = new Schematron(new SchXslt(), getResourceAsStream(simpleSchema10), "external-param");
 
         HashMap<String,Object> map = new HashMap<String,Object>();
         map.put("external-param", Integer.valueOf(1));
@@ -78,7 +80,7 @@ public class SchematronTest
     @Test
     public void extParamForXSLT20 () throws Exception
     {
-        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema20), "external-param");
+        Schematron schematron = new Schematron(new SchXslt(), getResourceAsStream(simpleSchema20), "external-param");
 
         HashMap<String,Object> map = new HashMap<String,Object>();
         map.put("external-param", Integer.valueOf(1));
@@ -91,7 +93,7 @@ public class SchematronTest
     @Test
     public void newSchematronForXSLT20 () throws Exception
     {
-        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema20), "always-valid");
+        Schematron schematron = new Schematron(new SchXslt(), getResourceAsStream(simpleSchema20), "always-valid");
         Result result = schematron.validate(getResourceAsStream(simpleSchema20));
         assertTrue(result.isValid());
     }
@@ -99,7 +101,7 @@ public class SchematronTest
     @Test
     public void catalogResolver () throws Exception
     {
-        Schematron schematron = new Schematron(getResourceAsStream(simpleSchema20catalog));
+        Schematron schematron = new Schematron(new SchXslt(), getResourceAsStream(simpleSchema20catalog));
         Result result = schematron.validate(getResourceAsStream(simpleSchema10));
         assertTrue(result.isValid());
     }
