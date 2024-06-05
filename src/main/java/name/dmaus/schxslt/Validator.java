@@ -31,8 +31,11 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.sax.SAXSource;
 
 import org.w3c.dom.Document;
+
+import org.xml.sax.XMLReader;
 
 import net.jcip.annotations.ThreadSafe;
 
@@ -43,9 +46,11 @@ import net.jcip.annotations.ThreadSafe;
 final class Validator
 {
     private final Templates schema;
+    private final XMLReader reader;
 
-    Validator (final Templates schema)
+    Validator (final XMLReader reader, final Templates schema)
     {
+        this.reader = reader;
         this.schema = schema;
     }
 
@@ -60,7 +65,8 @@ final class Validator
             }
 
             DOMResult result = new DOMResult();
-            transformer.transform(document, result);
+            SAXSource source = new SAXSource(reader, SAXSource.sourceToInputSource(document));
+            transformer.transform(source, result);
 
             return new Result((Document)result.getNode());
 

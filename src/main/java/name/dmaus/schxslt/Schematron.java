@@ -35,6 +35,10 @@ import name.dmaus.schxslt.adapter.Adapter;
 
 import org.w3c.dom.Document;
 
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
+
 import org.xmlresolver.XMLResolver;
 
 import java.util.Map;
@@ -92,8 +96,10 @@ public final class Schematron
         Document stylesheet = compile(factory, schematron, phase, options);
         try {
             Templates templates = factory.newTemplates(new DOMSource(stylesheet, stylesheet.getDocumentURI()));
-            validator = new Validator(templates);
-        } catch (TransformerException e) {
+            XMLReader reader = XMLReaderFactory.createXMLReader();
+            reader.setEntityResolver(resolver.getEntityResolver());
+            validator = new Validator(reader, templates);
+        } catch (SAXException | TransformerException e) {
             throw new SchematronException("Unable to create Validator instance", e);
         }
     }
