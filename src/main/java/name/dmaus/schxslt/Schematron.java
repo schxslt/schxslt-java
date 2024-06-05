@@ -50,6 +50,7 @@ public final class Schematron
 {
     private Validator validator;
     private Adapter adapter;
+    private XMLResolver resolver = new XMLResolver();
 
     public Schematron (final Adapter adapter, final Source schematron) throws SchematronException {
         this(adapter, schematron, null, null);
@@ -84,7 +85,6 @@ public final class Schematron
 
         TransformerFactory factory = transformerFactory;
         if (factory == null) {
-            XMLResolver resolver = new XMLResolver();
             factory = TransformerFactory.newInstance();
             factory.setURIResolver(resolver.getURIResolver());
         }
