@@ -3,4 +3,8 @@
     <Class name="name.dmaus.schxslt.Compiler"/>
     <Bug pattern="EI_EXPOSE_REP2"/>
   </Match>
+  <Match>
+    <Class name="name.dmaus.schxslt.Schematron"/>
+    <Bug pattern="XFB_XML_FACTORY_BYPASS"/>
+  </Match>
 </FindBugsFilter>
