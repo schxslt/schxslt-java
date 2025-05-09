@@ -33,7 +33,7 @@ import name.dmaus.schxslt.SchematronException;
  */
 public final class SchXslt2 implements Adapter
 {
-    private static final List<String> STEPS = List.of("/content/transpile.xsl");
+    private static final List<String> STEPS = List.of("classpath:/content/transpile.xsl");
 
     public List<String> getTranspilerStylesheets (final String queryBinding) throws SchematronException
     {
