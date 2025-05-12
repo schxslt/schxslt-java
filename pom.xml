@@ -73,7 +73,7 @@
     <dependency>
       <groupId>name.dmaus.schxslt</groupId>
       <artifactId>schxslt2</artifactId>
-      <version>[1.1,]</version>
+      <version>[v1.3,]</version>
       <scope>provided</scope>
     </dependency>
     <!-- https://mvnrepository.com/artifact/net.jcip/jcip-annotations -->
