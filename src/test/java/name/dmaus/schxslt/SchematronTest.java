@@ -25,20 +25,20 @@
 package name.dmaus.schxslt;
 
 import name.dmaus.schxslt.adapter.SchXslt;
-
+import name.dmaus.schxslt.adapter.SchXslt2;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import javax.xml.transform.stream.StreamSource;
-
 import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SchematronTest
 {
     final String simpleSchema10 = "/simple-schema-10.sch";
     final String simpleSchema20 = "/simple-schema-20.sch";
+    final String simpleSchema30 = "/simple-schema-30.sch";
     final String simpleSchema20catalog = "/simple-schema-20-catalog.sch";
     final String simpleSchema20WithPhase = "/simple-schema-20-phase.sch";
 
@@ -95,6 +95,18 @@ public class SchematronTest
     {
         Schematron schematron = new Schematron(new SchXslt(), getResourceAsStream(simpleSchema20), "always-valid");
         Result result = schematron.validate(getResourceAsStream(simpleSchema20));
+        assertTrue(result.isValid());
+    }
+
+    @Test
+    public void newSchematronForXSLT30 () throws Exception
+    {
+        Schematron schematron = new Schematron(new SchXslt2(), getResourceAsStream(simpleSchema30), "always-valid");
+
+        HashMap<String,Object> map = new HashMap<String,Object>();
+        map.put("external-param", Integer.valueOf(1));
+
+        Result result = schematron.validate(getResourceAsStream(simpleSchema30),map);
         assertTrue(result.isValid());
     }
 
